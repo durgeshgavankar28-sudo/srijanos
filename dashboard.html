@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Srijan | The Employee to Entrepreneur OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; background-color: #f8fafc; }
+        .gradient-text { background: linear-gradient(90deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-btn.active { border-bottom: 4px solid #2563eb; color: #2563eb; font-weight: bold; }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <!-- Top Navbar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-seedling text-blue-600 text-3xl"></i>
+                <span class="text-3xl font-bold text-slate-900 tracking-tight">Srijan<span class="text-blue-600">OS</span></span>
+            </div>
+            <div class="flex space-x-2 items-center">
+                <!-- My Profile Dropdown -->
+                <div class="relative">
+                    <button id="profileBtn" class="px-5 py-2 text-sm font-semibold rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center">
+                        <i class="fa-solid fa-circle-user mr-2 text-slate-400"></i><span id="profileBtnText">My Profile</span>
+                    </button>
+                    <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
+                        <div class="px-4 py-3 border-b border-slate-100 mb-1">
+                            <p class="text-sm font-bold text-slate-800">Siddhesh G.</p>
+                            <p class="text-xs text-slate-500 font-medium">Free Plan</p>
+                        </div>
+                        <button onclick="document.getElementById('settingsModal').classList.remove('hidden'); document.getElementById('profileDropdown').classList.add('hidden')" class="w-full text-left block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-gear mr-2 w-4 text-center"></i>Settings</button>
+                        <button onclick="alert('Saved ideas feature coming soon')" class="w-full text-left block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-bookmark mr-2 w-4 text-center"></i>Saved Ideas</button>
+                        <button onclick="logoutUser()" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 mt-1 border-t border-slate-100 pt-2"><i class="fa-solid fa-right-from-bracket mr-2 w-4 text-center"></i>Sign out</button>
+                    </div>
+                </div>
+                <!-- Upgrade Button -->
+                <button onclick="document.getElementById('proModal').classList.remove('hidden')" class="px-5 py-2 text-sm font-semibold rounded-full bg-slate-900 text-white hover:bg-slate-800 shadow-md">Upgrade to Pro</button>
+            </div>
+        </div>
+        
+        <!-- App Tabs -->
+        <div class="container mx-auto px-6 mt-2 flex space-x-8 overflow-x-auto text-slate-500 font-semibold text-sm">
+            <button onclick="switchTab('ideas')" id="tab-ideas" class="tab-btn active pb-4 px-2 whitespace-nowrap"><i class="fa-solid fa-lightbulb mr-2"></i>Idea Engine</button>
+            <button onclick="switchTab('stories')" id="tab-stories" class="tab-btn pb-4 px-2 whitespace-nowrap"><i class="fa-solid fa-trophy mr-2"></i>Success Stories</button>
+            <button onclick="switchTab('sprint')" id="tab-sprint" class="tab-btn pb-4 px-2 whitespace-nowrap"><i class="fa-solid fa-list-check mr-2"></i>30-Day Sprint</button>
+            <button onclick="switchTab('schemes')" id="tab-schemes" class="tab-btn pb-4 px-2 whitespace-nowrap"><i class="fa-solid fa-building-columns mr-2"></i>Govt Schemes</button>
+            <button onclick="switchTab('barter')" id="tab-barter" class="tab-btn pb-4 px-2 whitespace-nowrap"><i class="fa-solid fa-handshake mr-2"></i>Skill Barter</button>
+            <button onclick="switchTab('calculator')" id="tab-calculator" class="tab-btn pb-4 px-2 whitespace-nowrap"><i class="fa-solid fa-calculator mr-2"></i>Runway Calc</button>
+            <button onclick="switchTab('legal')" id="tab-legal" class="tab-btn pb-4 px-2 whitespace-nowrap"><i class="fa-solid fa-gavel mr-2"></i>Legal Desk</button>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-10 max-w-6xl">
+        
+        <!-- 1. IDEA ENGINE TAB -->
+        <div id="content-ideas" class="tab-content active">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold">Discover Ideas</h2>
+                    <p class="text-slate-500 text-sm">Filter 300+ validated business models for the Indian market.</p>
+                </div>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <select id="nicheInput" class="px-6 py-3 rounded-full border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="All">All Industries</option>
+                        <option value="Healthcare & Medicine">Healthcare</option>
+                        <option value="Tech & Software">Tech & Software</option>
+                        <option value="Food & Beverage">Food & Beverage</option>
+                        <option value="Professional Services">Services</option>
+                        <option value="Retail & E-Commerce">Retail</option>
+                        <option value="Creative & Media">Media</option>
+                    </select>
+                    <input type="number" id="budgetInput" placeholder="Budget (₹)" value="50000" class="px-6 py-3 rounded-full border border-slate-300 w-40 outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="fetchIdeas()" class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 shadow-md">
+                        Generate
+                    </button>
+                </div>
+            </div>
+            <div id="ideasContainer" class="grid md:grid-cols-2 gap-6"></div>
+        </div>
+
+        <!-- 2. 30-DAY SPRINT TAB -->
+        <div id="content-sprint" class="tab-content">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-2">Your 30-Day Transition Sprint</h2>
+                <p class="text-slate-600">We broke down your launch into micro-tasks. Do 1 task a day. Don't skip ahead.</p>
+            </div>
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Week 1 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4 text-blue-600 border-b pb-2">Week 1: Foundation</h3>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4 text-blue-600"><span class="text-sm text-slate-700">Define target customer profile</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4 text-blue-600"><span class="text-sm text-slate-700">Pick a business name</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4 text-blue-600"><span class="text-sm text-slate-700">Buy domain name (₹800)</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4 text-blue-600"><span class="text-sm text-slate-700">Open separate bank account</span></label>
+                </div>
+                <!-- Week 2 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4 text-amber-500 border-b pb-2">Week 2: Legal & Setup</h3>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Apply for Udyam (MSME)</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Apply for GST (If required)</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Setup free landing page</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Create social media handles</span></label>
+                </div>
+                <!-- Week 3 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4 text-purple-600 border-b pb-2">Week 3: The Offer</h3>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Define Pricing Strategy</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Setup Payment Gateway</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Create 1-page pitch deck</span></label>
+                </div>
+                <!-- Week 4 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4 text-emerald-600 border-b pb-2">Week 4: First Sale</h3>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">DM 20 potential clients</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Post offering in 5 WhatsApp groups</span></label>
+                    <label class="flex items-start space-x-3 mb-3 cursor-pointer"><input type="checkbox" class="mt-1 w-4 h-4"><span class="text-sm text-slate-700">Secure 1st paying customer</span></label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. GOVT SCHEMES TAB -->
+        <div id="content-schemes" class="tab-content">
+            <div class="bg-slate-900 text-white p-10 rounded-3xl mb-8 flex flex-col md:flex-row gap-8 items-center">
+                <div class="flex-1">
+                    <h2 class="text-3xl font-bold mb-4">Government Scheme Matcher</h2>
+                    <p class="text-slate-400">Don't use your own savings. Find exactly which Indian government loans and grants you legally qualify for.</p>
+                </div>
+                <div class="bg-white text-slate-900 p-6 rounded-2xl flex-1 w-full">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <select class="p-3 border rounded-lg bg-slate-50"><option>Male</option><option>Female</option></select>
+                        <select class="p-3 border rounded-lg bg-slate-50"><option>General</option><option>SC/ST</option><option>OBC</option></select>
+                        <select class="p-3 border rounded-lg bg-slate-50 col-span-2"><option>Manufacturing</option><option>Services</option><option>Trading</option></select>
+                    </div>
+                    <button class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center" id="schemeBtn" onclick="findSchemes()">Find My Schemes</button>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 border border-slate-200 rounded-2xl hover:shadow-md">
+                    <h3 class="font-bold text-xl mb-2">Pradhan Mantri Mudra Yojana (PMMY)</h3>
+                    <p class="text-slate-600 text-sm mb-4">Collateral-free loans up to ₹10 Lakhs for small/micro enterprises in manufacturing, trading, or services.</p>
+                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">High Match</span>
+                    <a href="https://www.mudra.org.in/" target="_blank" class="mt-4 inline-block text-blue-600 font-bold text-sm hover:underline">Read Application Guide &rarr;</a>
+                </div>
+                <div class="bg-white p-6 border border-slate-200 rounded-2xl hover:shadow-md">
+                    <h3 class="font-bold text-xl mb-2">Stand-Up India Scheme</h3>
+                    <p class="text-slate-600 text-sm mb-4">Bank loans between ₹10 Lakh and ₹1 Crore for setting up a greenfield enterprise. (Best for Women/SC/ST).</p>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Medium Match</span>
+                    <a href="https://www.standupmitra.in/" target="_blank" class="mt-4 inline-block text-blue-600 font-bold text-sm hover:underline">Read Application Guide &rarr;</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SKILL BARTER TAB -->
+        <div id="content-barter" class="tab-content">
+            <div class="text-center mb-10 max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-4">Co-Founder & Skill Barter Network</h2>
+                <p class="text-slate-600">Don't have money to hire? Trade your skills with other transitioning employees to build your business for free.</p>
+            </div>
+            
+            <div id="barterNetworkList" class="grid md:grid-cols-3 gap-6">
+                <!-- Profile 1 -->
+                <div class="bg-white p-6 border border-slate-200 rounded-2xl shadow-sm text-center">
+                    <img src="https://i.pravatar.cc/150?img=11" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-blue-50">
+                    <h3 class="font-bold text-lg">Amit Sharma</h3>
+                    <p class="text-slate-500 text-sm mb-4">Backend Developer @ TCS</p>
+                    <div class="bg-blue-50 p-3 rounded-lg mb-2 text-sm text-left">
+                        <span class="font-bold text-blue-800 block mb-1">I Can Offer:</span>
+                        App Development, Node.js, AWS Setup
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-lg mb-4 text-sm text-left">
+                        <span class="font-bold text-amber-800 block mb-1">I Need Help With:</span>
+                        Digital Marketing, Sales, Logo Design
+                    </div>
+                    <button onclick="document.getElementById('proModal').classList.remove('hidden')" class="w-full bg-slate-900 text-white font-bold py-2 rounded-lg hover:bg-slate-800 transition">Connect</button>
+                </div>
+                <!-- Profile 2 -->
+                <div class="bg-white p-6 border border-slate-200 rounded-2xl shadow-sm text-center">
+                    <img src="https://i.pravatar.cc/150?img=5" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-blue-50">
+                    <h3 class="font-bold text-lg">Neha Gupta</h3>
+                    <p class="text-slate-500 text-sm mb-4">Digital Marketer @ Agency</p>
+                    <div class="bg-blue-50 p-3 rounded-lg mb-2 text-sm text-left">
+                        <span class="font-bold text-blue-800 block mb-1">I Can Offer:</span>
+                        Facebook Ads, SEO, Copywriting
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-lg mb-4 text-sm text-left">
+                        <span class="font-bold text-amber-800 block mb-1">I Need Help With:</span>
+                        Shopify Store Setup, Inventory Mgmt
+                    </div>
+                    <button onclick="document.getElementById('proModal').classList.remove('hidden')" class="w-full bg-slate-900 text-white font-bold py-2 rounded-lg hover:bg-slate-800 transition">Connect</button>
+                </div>
+                <!-- Profile 3 -->
+                <div class="bg-white p-6 border border-slate-200 rounded-2xl shadow-sm text-center">
+                    <img src="https://i.pravatar.cc/150?img=8" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-blue-50">
+                    <h3 class="font-bold text-lg">Rahul Verma</h3>
+                    <p class="text-slate-500 text-sm mb-4">CA Inter / Accountant</p>
+                    <div class="bg-blue-50 p-3 rounded-lg mb-2 text-sm text-left">
+                        <span class="font-bold text-blue-800 block mb-1">I Can Offer:</span>
+                        Company Registration, GST, Tax
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-lg mb-4 text-sm text-left">
+                        <span class="font-bold text-amber-800 block mb-1">I Need Help With:</span>
+                        App UI Design, Video Editing
+                    </div>
+                    <button class="w-full bg-slate-900 text-white font-bold py-2 rounded-lg">Connect</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. SUCCESS STORIES TAB -->
+        <div id="content-stories" class="tab-content">
+            <div class="mb-8 flex justify-between items-end">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2">Verified Indian Success Stories</h2>
+                    <p class="text-slate-600">Read exactly how normal Indian employees transitioned to business, with verified monthly revenue data.</p>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Story 1 -->
+                <div onclick="document.getElementById('proModal').classList.remove('hidden')" class="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:shadow-xl transition cursor-pointer group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">₹4.2 Lakh / mo</div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2 block">Food & Beverage</span>
+                        <h3 class="font-bold text-xl mb-2 text-slate-800 group-hover:text-blue-600 transition">How I quit Infosys to start a ₹4L/mo Cloud Kitchen</h3>
+                        <p class="text-sm text-slate-600 mb-4">Rajesh transitioned from IT testing to running a highly profitable cloud kitchen network in Pune using Swiggy analytics.</p>
+                        <div class="flex items-center space-x-3 mt-4 border-t border-slate-100 pt-4">
+                            <img src="https://i.pravatar.cc/150?img=11" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-semibold text-slate-700">Rajesh Kumar</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story 2 -->
+                <div onclick="document.getElementById('proModal').classList.remove('hidden')" class="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:shadow-xl transition cursor-pointer group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">₹12 Lakh / mo</div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2 block">Tech & Software</span>
+                        <h3 class="font-bold text-xl mb-2 text-slate-800 group-hover:text-blue-600 transition">Building a B2B SaaS for local Indian gyms</h3>
+                        <p class="text-sm text-slate-600 mb-4">Sneha noticed local gyms tracking members on paper. She built a simple WhatsApp-integrated CRM.</p>
+                        <div class="flex items-center space-x-3 mt-4 border-t border-slate-100 pt-4">
+                            <img src="https://i.pravatar.cc/150?img=5" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-semibold text-slate-700">Sneha Patil</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story 3 -->
+                <div onclick="document.getElementById('proModal').classList.remove('hidden')" class="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:shadow-xl transition cursor-pointer group">
+                    <div class="h-48 bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">₹1.5 Lakh / mo</div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2 block">Professional Services</span>
+                        <h3 class="font-bold text-xl mb-2 text-slate-800 group-hover:text-blue-600 transition">Starting a virtual bookkeeping agency</h3>
+                        <p class="text-sm text-slate-600 mb-4">As an accountant working 12 hours a day, Amit quit to freelance. He now manages 14 clients remotely.</p>
+                        <div class="flex items-center space-x-3 mt-4 border-t border-slate-100 pt-4">
+                            <img src="https://i.pravatar.cc/150?img=8" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-semibold text-slate-700">Amit Desai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. LEGAL DESK TAB -->
+        <div id="content-legal" class="tab-content">
+            <div class="text-center mb-10 max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-4">B2B Legal Desk</h2>
+                <p class="text-slate-600">Instantly generate standard Indian legal agreements for your startup. No lawyer required. *Disclaimer: These are standard templates and do not substitute official legal counsel.*</p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Inputs -->
+                <div class="w-full md:w-1/3 space-y-4">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Select Template</label>
+                        <select id="legalTemplate" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4 bg-slate-50" onchange="generateLegalDoc()">
+                            <option value="cofounder">Co-Founder Agreement</option>
+                            <option value="nda">Non-Disclosure Agreement (NDA)</option>
+                            <option value="freelance">Freelancer Contract</option>
+                        </select>
+
+                        <div id="legalFields-cofounder" class="space-y-4 legal-fields block">
+                            <div><label class="block text-xs font-bold text-slate-500">Your Name</label><input type="text" id="legalName1" class="w-full p-2 border rounded" value="Siddhesh Gavankar" onkeyup="generateLegalDoc()"></div>
+                            <div><label class="block text-xs font-bold text-slate-500">Partner's Name</label><input type="text" id="legalName2" class="w-full p-2 border rounded" placeholder="e.g. Rahul Verma" onkeyup="generateLegalDoc()"></div>
+                            <div><label class="block text-xs font-bold text-slate-500">Startup Name</label><input type="text" id="legalCompany" class="w-full p-2 border rounded" placeholder="e.g. TechCorp" onkeyup="generateLegalDoc()"></div>
+                            <div><label class="block text-xs font-bold text-slate-500">Your Equity %</label><input type="number" id="legalEquity1" class="w-full p-2 border rounded" value="50" onkeyup="generateLegalDoc()"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div class="w-full md:w-2/3">
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 shadow-inner h-[500px] overflow-y-auto font-serif text-sm text-slate-800 leading-relaxed whitespace-pre-wrap" id="legalPreview">
+                        <!-- Content generated via JS -->
+                    </div>
+                    <button onclick="copyLegalDoc()" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition w-full shadow-lg"><i class="fa-solid fa-copy mr-2"></i>Copy Document to Clipboard</button>
+                    <p id="copyAlert" class="text-emerald-600 font-bold text-center mt-2 hidden">Copied to clipboard!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. CALCULATOR TAB -->
+        <div id="content-calculator" class="tab-content">
+            <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-10">
+                <div class="flex-1 space-y-8">
+                    <h2 class="text-3xl font-bold">The "Don't Quit Yet" Calculator</h2>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-2">Current Job Salary (₹)</label>
+                        <input type="range" id="salaryRange" min="20000" max="300000" step="5000" value="80000" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+                        <div class="text-right font-bold text-blue-600 mt-2 text-xl" id="salaryDisplay">₹80,000</div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-2">Business Monthly Profit (₹)</label>
+                        <input type="range" id="businessRange" min="0" max="200000" step="2000" value="20000" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+                        <div class="text-right font-bold text-emerald-600 mt-2 text-xl" id="businessDisplay">₹20,000</div>
+                    </div>
+                </div>
+                <div class="flex-1 bg-slate-900 rounded-2xl p-8 text-white flex flex-col justify-center items-center text-center">
+                    <h4 class="text-slate-400 font-semibold mb-2 uppercase tracking-wide text-sm">Readiness Score</h4>
+                    <div id="readinessScore" class="text-6xl font-bold mb-4 text-yellow-400">25%</div>
+                    <p id="readinessMessage" class="text-slate-300">Keep hustling on weekends! Build a 3-month savings buffer.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- AI CHATBOT WIDGET -->
+    <div id="chatWidget" class="fixed bottom-6 right-6 z-50">
+        <!-- Chat Window -->
+        <div id="chatWindow" class="hidden bg-white w-80 h-96 rounded-2xl shadow-2xl border border-slate-200 flex flex-col mb-4 overflow-hidden transition-all">
+            <div class="bg-blue-600 text-white p-4 font-bold flex justify-between items-center">
+                <span><i class="fa-solid fa-robot mr-2"></i>Srijan AI Mentor</span>
+                <button onclick="toggleChat()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="flex-1 p-4 overflow-y-auto bg-slate-50 text-sm space-y-3" id="chatMessages">
+                <div class="bg-blue-100 text-blue-900 p-3 rounded-lg rounded-tl-none w-10/12">Hi! I'm trained on Indian business law and startup strategy. What are you afraid of today?</div>
+            </div>
+            <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ask a question..." class="flex-1 px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-blue-500">
+                <button onclick="sendChat()" class="bg-blue-600 text-white px-3 py-2 rounded-lg"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <!-- Chat Button -->
+        <button onclick="toggleChat()" class="bg-blue-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl hover:bg-blue-700 transition float-right">
+            <i class="fa-solid fa-comment-dots"></i>
+        </button>
+    </div>
+
+    <script>
+        // Settings Tab Navigation
+        function switchSetTab(tabName) {
+            ['account', 'notifications', 'billing'].forEach(t => {
+                document.getElementById('setTab-' + t).classList.add('hidden');
+                document.getElementById('setTab-' + t).classList.remove('block');
+                document.getElementById('setBtn-' + t).className = "w-full text-left font-medium text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg mb-2";
+            });
+            
+            document.getElementById('setTab-' + tabName).classList.remove('hidden');
+            document.getElementById('setTab-' + tabName).classList.add('block');
+            document.getElementById('setBtn-' + tabName).className = "w-full text-left font-semibold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg mb-2";
+        }
+
+        // AUTHENTICATION & SYNC LOGIC
+        let currentUser = null;
+
+        window.onload = () => {
+            fetchIdeas();
+            checkAuth();
+            setupSprintSync();
+        };
+
+        function checkAuth() {
+            const savedEmail = localStorage.getItem('srijanUser');
+            const profileBtn = document.getElementById('profileBtn');
+            
+            if (savedEmail) {
+                document.getElementById('profileBtnText').innerText = savedEmail.split('@')[0];
+                currentUser = savedEmail;
+                // If logged in, button opens profile dropdown
+                profileBtn.onclick = () => document.getElementById('profileDropdown').classList.toggle('hidden');
+                
+                // Fetch their progress and profile
+                fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: savedEmail })
+                }).then(r => r.json()).then(data => {
+                    if (data.success) {
+                        if (data.user.sprintProgress) {
+                            restoreSprintProgress(data.user.sprintProgress);
+                        }
+                        if (data.user.name) document.getElementById('profileName').value = data.user.name;
+                        if (data.user.role) document.getElementById('profileRole').value = data.user.role;
+                        if (data.user.offer) document.getElementById('profileOffer').value = data.user.offer;
+                        if (data.user.need) document.getElementById('profileNeed').value = data.user.need;
+                    }
+                });
+            } else {
+                document.getElementById('profileBtnText').innerText = "Sign In";
+                // If not logged in, button opens login modal
+                profileBtn.onclick = () => document.getElementById('loginModal').classList.remove('hidden');
+            }
+        }
+
+        // --- PROFILE & BARTER LOGIC ---
+        function saveProfile() {
+            if (!currentUser) return alert("Please sign in first.");
+            const btn = document.getElementById('saveProfileBtn');
+            btn.innerText = "Saving...";
+            
+            fetch('/api/profile', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    email: currentUser,
+                    name: document.getElementById('profileName').value,
+                    role: document.getElementById('profileRole').value,
+                    offer: document.getElementById('profileOffer').value,
+                    need: document.getElementById('profileNeed').value
+                })
+            }).then(r => r.json()).then(data => {
+                btn.innerText = "Save & Publish Profile";
+                if (data.success) {
+                    document.getElementById('profileStatus').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('profileStatus').classList.add('hidden'), 3000);
+                    loadBarterProfiles();
+                }
+            });
+        }
+
+        function loadBarterProfiles() {
+            fetch('/api/profiles')
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('barterNetworkList');
+                    if (!container) return;
+                    
+                    if (data.profiles && data.profiles.length > 0) {
+                        let html = '';
+                        data.profiles.forEach(p => {
+                            html += `
+                            <div class="border border-slate-200 p-6 rounded-2xl flex items-start gap-4 hover:shadow-lg transition bg-white">
+                                <div class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xl shrink-0">
+                                    ${p.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h3 class="font-bold text-lg text-slate-800">${p.name}</h3>
+                                            <p class="text-sm text-slate-500">${p.role}</p>
+                                        </div>
+                                        <button onclick="document.getElementById('proModal').classList.remove('hidden')" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg transition">Connect</button>
+                                    </div>
+                                    <div class="mt-4 space-y-2">
+                                        <div class="bg-blue-50 text-blue-800 text-sm p-3 rounded-lg border border-blue-100">
+                                            <span class="font-bold">I can offer:</span> ${p.offer}
+                                        </div>
+                                        <div class="bg-emerald-50 text-emerald-800 text-sm p-3 rounded-lg border border-emerald-100">
+                                            <span class="font-bold">I need help with:</span> ${p.need}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                        });
+                        container.innerHTML = html;
+                    }
+                });
+        }
+
+        async function performLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('loginError');
+            
+            if (!email.includes('@')) {
+                err.innerText = "Please enter a valid email.";
+                err.classList.remove('hidden');
+                return;
+            }
+            
+            err.classList.add('hidden');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                localStorage.setItem('srijanUser', data.user.email);
+                document.getElementById('loginModal').classList.add('hidden');
+                checkAuth();
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('srijanUser');
+            currentUser = null;
+            document.getElementById('profileDropdown').classList.add('hidden');
+            
+            // Clear all checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            checkAuth();
+        }
+
+        function setupSprintSync() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach((cb, index) => {
+                cb.dataset.index = index; // assign unique ID to each checkbox
+                cb.addEventListener('change', () => {
+                    if (!currentUser) {
+                        alert("Please Sign In to save your progress!");
+                        document.getElementById('loginModal').classList.remove('hidden');
+                        cb.checked = false; // revert
+                        return;
+                    }
+                    
+                    // Collect all checked indexes
+                    const progress = [];
+                    document.querySelectorAll('input[type="checkbox"]').forEach(box => {
+                        if (box.checked) progress.push(parseInt(box.dataset.index));
+                    });
+                    
+                    // Send to backend silently
+                    fetch('/api/sprint', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ email: currentUser, progress })
+                    });
+                });
+            });
+        }
+
+        function restoreSprintProgress(progressArray) {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                if (progressArray.includes(parseInt(cb.dataset.index))) {
+                    cb.checked = true;
+                }
+            });
+        }
+
+        // Govt Scheme Matcher Logic
+        function findSchemes() {
+            const btn = document.getElementById('schemeBtn');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Analyzing Demographics...';
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Matches Found Below';
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btn.classList.replace('bg-blue-600', 'bg-emerald-600');
+                btn.classList.replace('hover:bg-blue-700', 'hover:bg-emerald-700');
+            }, 1500);
+        }
+
+        // Main App Tab Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('content-' + tabId).classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        // Chatbot Logic
+        function toggleChat() {
+            const chat = document.getElementById('chatWindow');
+            chat.classList.toggle('hidden');
+        }
+        async function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value;
+            if(!msg) return;
+            const container = document.getElementById('chatMessages');
+            
+            // Add user message
+            container.innerHTML += `<div class="bg-white border text-slate-800 p-3 rounded-lg rounded-tr-none w-10/12 ml-auto shadow-sm">${msg}</div>`;
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+            
+            // Add typing indicator
+            const typingId = 'typing-' + Date.now();
+            container.innerHTML += `<div id="${typingId}" class="bg-blue-100 text-blue-900 p-3 rounded-lg rounded-tl-none w-10/12 shadow-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing...</div>`;
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                // Call actual backend API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await response.json();
+                
+                // Replace typing indicator with real message
+                document.getElementById(typingId).outerHTML = `<div class="bg-blue-100 text-blue-900 p-3 rounded-lg rounded-tl-none w-10/12 shadow-sm leading-relaxed">${data.reply}</div>`;
+            } catch (err) {
+                document.getElementById(typingId).innerHTML = '<span class="text-red-500">AI Server Offline.</span>';
+            }
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Deep Strategy Toggle
+        function toggleStrategy(id) {
+            const el = document.getElementById('strategy-' + id);
+            const btn = document.getElementById('btn-' + id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-chevron-up mr-2"></i>Hide Strategy';
+            } else {
+                el.classList.add('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-bolt mr-2"></i>View Deep Strategy';
+            }
+        }
+
+        // Fetch Ideas (Database Integration)
+        async function fetchIdeas() {
+            const budget = document.getElementById('budgetInput').value;
+            const niche = document.getElementById('nicheInput').value;
+            const container = document.getElementById('ideasContainer');
+            container.innerHTML = '<p class="text-center w-full col-span-2 text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Querying database...</p>';
+            
+            try {
+                const response = await fetch(`/api/ideas?budget=${budget}&niche=${encodeURIComponent(niche)}`);
+                const data = await response.json();
+                
+                container.innerHTML = '';
+                if(data.ideas.length === 0) {
+                    container.innerHTML = '<p class="text-center w-full col-span-2 text-slate-500">No ideas found. Try increasing budget.</p>';
+                    return;
+                }
+
+                data.ideas.forEach(idea => {
+                    container.innerHTML += `
+                        <div class="p-6 bg-white border border-slate-200 rounded-3xl shadow-sm hover:shadow-lg transition flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 block">${idea.niche}</span>
+                                    <span class="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">₹${idea.min_budget} req.</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 text-slate-800">${idea.title}</h3>
+                                <p class="text-slate-600 text-sm mb-6">${idea.description}</p>
+                            </div>
+                            <div>
+                                <button id="btn-${idea.id}" onclick="toggleStrategy(${idea.id})" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition">
+                                    <i class="fa-solid fa-bolt mr-2"></i>View Deep Strategy
+                                </button>
+                                <div id="strategy-${idea.id}" class="hidden">
+                                    ${idea.strategy_html}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                container.innerHTML = '<p class="text-center text-red-500 w-full col-span-2">Database Error. Start Node.js server.</p>';
+            }
+        }
+        // --- LEGAL DESK LOGIC ---
+        function generateLegalDoc() {
+            const template = document.getElementById('legalTemplate').value;
+            const name1 = document.getElementById('legalName1').value || "[Your Name]";
+            const name2 = document.getElementById('legalName2').value || "[Partner's Name]";
+            const company = document.getElementById('legalCompany').value || "[Company Name]";
+            const equity1 = parseInt(document.getElementById('legalEquity1').value) || 50;
+            const equity2 = 100 - equity1;
+            
+            const date = new Date().toLocaleDateString('en-IN');
+            const preview = document.getElementById('legalPreview');
+
+            if (template === 'cofounder') {
+                preview.innerHTML = `<b>CO-FOUNDER AGREEMENT</b>\n\nThis Agreement is made on ${date}, by and between:\n\n1. <b>${name1}</b> (hereinafter referred to as "Founder 1"), and\n2. <b>${name2}</b> (hereinafter referred to as "Founder 2").\n\nThe Founders have agreed to co-found and operate a business under the name <b>${company}</b> (the "Company").\n\n<b>1. EQUITY OWNERSHIP</b>\nThe equity ownership of the Company shall be divided as follows:\n- ${name1}: ${equity1}%\n- ${name2}: ${equity2}%\n\n<b>2. ROLES AND RESPONSIBILITIES</b>\nBoth Founders agree to devote their full time and best efforts to the business of the Company.\n\n<b>3. VESTING</b>\nAll equity shares shall be subject to a standard 4-year vesting schedule with a 1-year cliff, starting from the date of this Agreement.\n\n<b>4. INTELLECTUAL PROPERTY</b>\nAny intellectual property created by the Founders for the Company shall belong exclusively to the Company.\n\nIN WITNESS WHEREOF, the parties hereto have executed this Agreement.\n\n_________________________\nSignature: ${name1}\n\n_________________________\nSignature: ${name2}`;
+            } else if (template === 'nda') {
+                preview.innerHTML = `<b>NON-DISCLOSURE AGREEMENT (NDA)</b>\n\nThis NDA is made on ${date}, by <b>${name1}</b> (Disclosing Party) and <b>${name2}</b> (Receiving Party) regarding the business of <b>${company}</b>.\n\nThe Receiving Party agrees not to disclose, share, or misuse any confidential business information, trade secrets, or intellectual property shared by the Disclosing Party.\n\n_________________________\nSignature: ${name2}`;
+            } else {
+                preview.innerHTML = `<b>FREELANCER CONTRACT</b>\n\nThis Contract is made on ${date}, between <b>${company}</b> (Client) and <b>${name2}</b> (Freelancer).\n\nThe Freelancer agrees to provide professional services to the Client. All intellectual property created during this engagement shall be transferred to and owned by <b>${company}</b>.\n\n_________________________\nSignature: ${name1}\n\n_________________________\nSignature: ${name2}`;
+            }
+        }
+        
+        function copyLegalDoc() {
+            const text = document.getElementById('legalPreview').innerText;
+            navigator.clipboard.writeText(text);
+            document.getElementById('copyAlert').classList.remove('hidden');
+            setTimeout(() => document.getElementById('copyAlert').classList.add('hidden'), 3000);
+        }
+
+
+        // Calculator Logic
+        const salR = document.getElementById('salaryRange'), bizR = document.getElementById('businessRange');
+        const salD = document.getElementById('salaryDisplay'), bizD = document.getElementById('businessDisplay');
+        function calc() {
+            const s = parseInt(salR.value), b = parseInt(bizR.value);
+            salD.innerText = '₹' + s.toLocaleString('en-IN'); bizD.innerText = '₹' + b.toLocaleString('en-IN');
+            let p = s > 0 ? Math.round((b/s)*100) : 0;
+            document.getElementById('readinessScore').innerText = p + '%';
+            let msg = document.getElementById('readinessMessage');
+            if(p < 30) { msg.innerText="Keep hustling on weekends!"; document.getElementById('readinessScore').className="text-6xl font-bold mb-4 text-red-500"; }
+            else if(p < 70) { msg.innerText="Almost there! Save a 3-month buffer."; document.getElementById('readinessScore').className="text-6xl font-bold mb-4 text-yellow-500"; }
+            else { msg.innerText="Safe to Jump! You are ready to be the Boss."; document.getElementById('readinessScore').className="text-6xl font-bold mb-4 text-emerald-500"; }
+        }
+        salR.addEventListener('input', calc); bizR.addEventListener('input', calc); calc();
+
+        // Initial Load
+        fetchIdeas();
+        loadBarterProfiles();
+        generateLegalDoc();
+    </script>
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl relative overflow-hidden flex h-[500px]">
+            <button onclick="document.getElementById('settingsModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 text-xl z-10"><i class="fa-solid fa-times"></i></button>
+            
+            <!-- Sidebar -->
+            <div class="w-1/3 bg-slate-50 border-r border-slate-200 p-6">
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Settings</h3>
+                <button onclick="switchSetTab('account')" id="setBtn-account" class="w-full text-left font-semibold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg mb-2"><i class="fa-solid fa-user mr-2"></i>Account</button>
+                <button onclick="switchSetTab('notifications')" id="setBtn-notifications" class="w-full text-left font-medium text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg mb-2"><i class="fa-solid fa-bell mr-2"></i>Notifications</button>
+                <button onclick="switchSetTab('billing')" id="setBtn-billing" class="w-full text-left font-medium text-slate-600 hover:bg-slate-100 px-4 py-2 rounded-lg"><i class="fa-solid fa-credit-card mr-2"></i>Billing</button>
+            </div>
+            
+            <!-- Content -->
+            <div class="w-2/3 p-8 overflow-y-auto">
+                
+                <!-- Account Tab -->
+                <div id="setTab-account" class="block">
+                    <h2 class="text-2xl font-bold mb-6">Barter Profile</h2>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Display Name</label>
+                        <input type="text" id="profileName" placeholder="e.g. Rahul Verma" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Role / Job Title</label>
+                        <input type="text" id="profileRole" placeholder="e.g. Backend Developer @ TCS" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">I Can Offer</label>
+                        <input type="text" id="profileOffer" placeholder="e.g. Node.js, AWS Setup, Coding" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">I Need Help With</label>
+                        <input type="text" id="profileNeed" placeholder="e.g. Digital Marketing, Sales" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <button id="saveProfileBtn" onclick="saveProfile()" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-blue-700 w-full transition">Save & Publish Profile</button>
+                    <p id="profileStatus" class="text-center text-sm font-bold text-emerald-600 mt-3 hidden">Profile Published to Barter Network!</p>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div id="setTab-notifications" class="hidden">
+                    <h2 class="text-2xl font-bold mb-6">Notifications</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-slate-50 cursor-pointer">
+                            <div><p class="font-bold text-slate-800">New Co-Founder Matches</p><p class="text-xs text-slate-500">Email me when someone wants to barter.</p></div>
+                            <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                        </label>
+                        <label class="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-slate-50 cursor-pointer">
+                            <div><p class="font-bold text-slate-800">Govt Scheme Deadlines</p><p class="text-xs text-slate-500">Alert me when a grant is closing.</p></div>
+                            <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                        </label>
+                        <label class="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-slate-50 cursor-pointer">
+                            <div><p class="font-bold text-slate-800">Marketing Emails</p><p class="text-xs text-slate-500">News and updates from SrijanOS.</p></div>
+                            <input type="checkbox" class="w-5 h-5 text-blue-600 rounded">
+                        </label>
+                    </div>
+                    <button onclick="alert('Notification preferences updated!')" class="mt-8 bg-slate-900 text-white font-bold px-6 py-3 rounded-xl hover:bg-slate-800 w-full">Update Preferences</button>
+                </div>
+
+                <!-- Billing Tab -->
+                <div id="setTab-billing" class="hidden">
+                    <h2 class="text-2xl font-bold mb-6">Billing & Invoices</h2>
+                    <div class="text-center py-12 bg-slate-50 border border-slate-200 rounded-2xl">
+                        <i class="fa-solid fa-file-invoice-dollar text-5xl text-slate-300 mb-4"></i>
+                        <h3 class="font-bold text-slate-700 text-lg mb-1">No Billing History</h3>
+                        <p class="text-sm text-slate-500 mb-6">You are currently on the Free Plan.</p>
+                        <button onclick="document.getElementById('settingsModal').classList.add('hidden'); document.getElementById('proModal').classList.remove('hidden')" class="bg-blue-600 text-white font-bold px-8 py-3 rounded-xl hover:bg-blue-700 shadow-lg">Upgrade to Pro</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- PRO UPGRADE MODAL -->
+    <div id="proModal" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl relative">
+            <button onclick="document.getElementById('proModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 text-xl"><i class="fa-solid fa-times"></i></button>
+            <h2 class="text-3xl font-bold mb-2">Upgrade to <span class="text-blue-600">Srijan Pro</span></h2>
+            <p class="text-slate-600 mb-6">You've unlocked the ultimate entrepreneurial OS. It's time to execute.</p>
+            
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
+                <div class="text-3xl font-bold mb-4">₹499<span class="text-lg text-slate-500 font-normal"> / month</span></div>
+                <ul class="space-y-3 text-sm text-slate-700 font-medium">
+                    <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Access to all 300+ Deep Strategies</li>
+                    <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Unlimited AI Co-Founder Chat</li>
+                    <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Unlock 5 Co-Founder connections/month</li>
+                    <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Automated Govt Loan Application Prep</li>
+                </ul>
+            </div>
+            
+            <button id="checkoutBtn" onclick="processPayment()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 shadow-lg transition flex items-center justify-center">
+                Proceed to Checkout
+            </button>
+        </div>
+
+    <!-- RAZORPAY MOCK CHECKOUT MODAL -->
+    <div id="razorpayModal" class="hidden fixed inset-0 bg-black/70 z-[200] flex items-center justify-center font-sans backdrop-blur-sm">
+        <div class="bg-white w-[400px] rounded-lg shadow-2xl overflow-hidden relative">
+            <button onclick="document.getElementById('razorpayModal').classList.add('hidden')" class="absolute top-4 right-4 text-white opacity-60 hover:opacity-100"><i class="fa-solid fa-times"></i></button>
+            
+            <div class="bg-blue-900 text-white p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-inner">
+                    <i class="fa-solid fa-seedling text-blue-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">SrijanOS Subscription</h3>
+                    <p class="text-sm opacity-80">PRO Plan - ₹499.00</p>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <h4 class="text-slate-500 font-semibold mb-4 text-xs uppercase tracking-widest">Select Payment Method</h4>
+                
+                <!-- UPI -->
+                <button onclick="mockPaymentProcess('upi')" id="rzpUpiBtn" class="w-full flex items-center justify-between p-4 border border-slate-200 rounded-lg mb-4 hover:border-blue-500 hover:bg-blue-50 transition cursor-pointer">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-brands fa-google-pay text-3xl text-slate-700"></i>
+                        <span class="font-bold text-slate-800">UPI / QR Code</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                </button>
+
+                <!-- Cards -->
+                <div class="border border-slate-200 rounded-lg p-5 relative">
+                    <div id="paymentError" class="hidden absolute -top-12 left-0 right-0 bg-red-100 border border-red-200 text-red-600 text-sm font-bold p-2 rounded shadow-sm text-center"></div>
+                    
+                    <div class="flex items-center space-x-3 mb-4">
+                        <i class="fa-regular fa-credit-card text-slate-500 text-xl"></i>
+                        <span class="font-bold text-slate-800">Credit / Debit Card</span>
+                    </div>
+                    <input type="text" id="cardNumber" placeholder="Card Number (e.g. 4242...)" class="w-full border border-slate-300 rounded-lg p-3 mb-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                    <div class="flex space-x-3 mb-5">
+                        <input type="text" id="cardExpiry" placeholder="MM/YY" class="w-1/2 border border-slate-300 rounded-lg p-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                        <input type="text" id="cardCvv" placeholder="CVV" class="w-1/2 border border-slate-300 rounded-lg p-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                    </div>
+                    <button onclick="mockPaymentProcess('card')" id="rzpPayBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 shadow-md transition flex justify-center items-center">
+                        Pay ₹499.00
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-slate-50 p-4 text-center text-xs font-semibold text-slate-400 border-t border-slate-100 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-lock"></i>
+                <span>Secured by Razorpay</span>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm p-8 rounded-3xl shadow-2xl relative text-center">
+            <button onclick="document.getElementById('loginModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900"><i class="fa-solid fa-times"></i></button>
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-user text-2xl text-blue-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Sign In to SrijanOS</h2>
+            <p class="text-slate-500 text-sm mb-6">Save your 30-Day Sprint progress.</p>
+            <input type="email" id="loginEmail" placeholder="Enter your email" class="w-full px-4 py-3 border border-slate-300 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500">
+            <div id="loginError" class="hidden text-red-500 text-sm font-bold mb-4"></div>
+            <button onclick="performLogin()" id="loginBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">Continue</button>
+        </div>
+    </div>
+
+    <!-- PAYMENT SUCCESS MODAL -->
+    <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md p-10 rounded-3xl shadow-2xl relative text-center">
+            <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-check text-4xl text-emerald-500"></i>
+            </div>
+            <h2 class="text-3xl font-bold mb-2">Payment Successful!</h2>
+            <p class="text-slate-600 mb-8">Welcome to <span class="font-bold text-blue-600">Srijan Pro</span>. Your account has been upgraded and all premium deep strategies are now unlocked.</p>
+            
+            <button onclick="document.getElementById('successModal').classList.add('hidden')" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition">
+                Go to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function processPayment() {
+            // Close Pro Modal and Open Razorpay Checkout Modal
+            document.getElementById('proModal').classList.add('hidden');
+            document.getElementById('razorpayModal').classList.remove('hidden');
+        }
+
+        async function mockPaymentProcess(method = 'card') {
+            const errDiv = document.getElementById('paymentError');
+            errDiv.classList.add('hidden');
+
+            if (method === 'upi') {
+                const upiBtn = document.getElementById('rzpUpiBtn');
+                upiBtn.innerHTML = '<div class="w-full text-center py-2"><i class="fa-solid fa-mobile-screen mr-2"></i> Opening GPay / PhonePe...</div>';
+                upiBtn.classList.add('opacity-75', 'cursor-not-allowed', 'bg-slate-100');
+                
+                setTimeout(() => {
+                    document.getElementById('razorpayModal').classList.add('hidden');
+                    document.getElementById('successModal').classList.remove('hidden');
+                    
+                    // Reset
+                    upiBtn.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <i class="fa-brands fa-google-pay text-3xl text-slate-700"></i>
+                            <span class="font-bold text-slate-800">UPI / QR Code</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-400"></i>`;
+                    upiBtn.classList.remove('opacity-75', 'cursor-not-allowed', 'bg-slate-100');
+                }, 3000);
+                return;
+            }
+
+            // Card Processing Logic
+            const btn = document.getElementById('rzpPayBtn');
+            const cardNumber = document.getElementById('cardNumber') ? document.getElementById('cardNumber').value.replace(/\s/g, '') : '';
+            const expiry = document.getElementById('cardExpiry') ? document.getElementById('cardExpiry').value : '';
+            const cvv = document.getElementById('cardCvv') ? document.getElementById('cardCvv').value : '';
+
+            if (!cardNumber || !expiry || !cvv) {
+                errDiv.innerText = "Please fill in all card details.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Authenticating...';
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            try {
+                const response = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cardNumber, expiry, cvv })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('razorpayModal').classList.add('hidden');
+                    document.getElementById('successModal').classList.remove('hidden');
+                } else {
+                    errDiv.innerText = data.error || "Payment failed.";
+                    errDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                errDiv.innerText = "Network error. Gateway unreachable.";
+                errDiv.classList.remove('hidden');
+            }
+
+            btn.innerHTML = 'Pay ₹499.00';
+            btn.classList.remove('opacity-75', 'cursor-not-allowed');
+        }
+    </script>
+</body>
+</html>
