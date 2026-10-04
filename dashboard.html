@@ -13,6 +13,7 @@
         .tab-content.active { display: block; }
         .tab-btn.active { border-bottom: 4px solid #2563eb; color: #2563eb; font-weight: bold; }
     </style>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body class="text-slate-900">
 
@@ -905,75 +906,74 @@
     </div>
 
     <script>
-        function processPayment() {
-            // Close Pro Modal and Open Razorpay Checkout Modal
-            document.getElementById('proModal').classList.add('hidden');
-            document.getElementById('razorpayModal').classList.remove('hidden');
-        }
-
-        async function mockPaymentProcess(method = 'card') {
-            const errDiv = document.getElementById('paymentError');
-            errDiv.classList.add('hidden');
-
-            if (method === 'upi') {
-                const upiBtn = document.getElementById('rzpUpiBtn');
-                upiBtn.innerHTML = '<div class="w-full text-center py-2"><i class="fa-solid fa-mobile-screen mr-2"></i> Opening GPay / PhonePe...</div>';
-                upiBtn.classList.add('opacity-75', 'cursor-not-allowed', 'bg-slate-100');
-                
-                setTimeout(() => {
-                    document.getElementById('razorpayModal').classList.add('hidden');
-                    document.getElementById('successModal').classList.remove('hidden');
-                    
-                    // Reset
-                    upiBtn.innerHTML = `
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-brands fa-google-pay text-3xl text-slate-700"></i>
-                            <span class="font-bold text-slate-800">UPI / QR Code</span>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-slate-400"></i>`;
-                    upiBtn.classList.remove('opacity-75', 'cursor-not-allowed', 'bg-slate-100');
-                }, 3000);
-                return;
-            }
-
-            // Card Processing Logic
-            const btn = document.getElementById('rzpPayBtn');
-            const cardNumber = document.getElementById('cardNumber') ? document.getElementById('cardNumber').value.replace(/\s/g, '') : '';
-            const expiry = document.getElementById('cardExpiry') ? document.getElementById('cardExpiry').value : '';
-            const cvv = document.getElementById('cardCvv') ? document.getElementById('cardCvv').value : '';
-
-            if (!cardNumber || !expiry || !cvv) {
-                errDiv.innerText = "Please fill in all card details.";
-                errDiv.classList.remove('hidden');
-                return;
-            }
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Authenticating...';
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
+        async function processPayment() {
+            if (!currentUser) return alert("Please sign in first.");
             
-            try {
-                const response = await fetch('/api/checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cardNumber, expiry, cvv })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('razorpayModal').classList.add('hidden');
-                    document.getElementById('successModal').classList.remove('hidden');
-                } else {
-                    errDiv.innerText = data.error || "Payment failed.";
-                    errDiv.classList.remove('hidden');
-                }
-            } catch (error) {
-                errDiv.innerText = "Network error. Gateway unreachable.";
-                errDiv.classList.remove('hidden');
-            }
+            const btn = document.getElementById('checkoutBtn');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Initializing Gateway...';
+            btn.disabled = true;
 
-            btn.innerHTML = 'Pay ₹499.00';
-            btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            try {
+                // 1. Ask backend to create Razorpay Order
+                const res = await fetch('/api/create-order', { method: 'POST' });
+                const data = await res.json();
+                
+                if (!data.success) {
+                    alert("Gateway Error: " + data.error);
+                    btn.innerHTML = 'Proceed to Checkout';
+                    btn.disabled = false;
+                    return;
+                }
+
+                // 2. Open official Razorpay Checkout Modal
+                const options = {
+                    "key": "rzp_test_placeholder", // Replaced by user via .env in production
+                    "amount": data.order.amount,
+                    "currency": data.order.currency,
+                    "name": "SrijanOS",
+                    "description": "PRO Upgrade",
+                    "order_id": data.order.id,
+                    "handler": async function (response) {
+                        // 3. Verify Payment Signature
+                        const verifyRes = await fetch('/api/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(response)
+                        });
+                        const verifyData = await verifyRes.json();
+                        
+                        if (verifyData.success) {
+                            document.getElementById('proModal').classList.add('hidden');
+                            document.getElementById('successModal').classList.remove('hidden');
+                        } else {
+                            alert("Payment verification failed!");
+                        }
+                    },
+                    "prefill": {
+                        "email": currentUser,
+                        "contact": "9999999999"
+                    },
+                    "theme": {
+                        "color": "#2563eb"
+                    }
+                };
+                
+                const rzp1 = new Razorpay(options);
+                rzp1.on('payment.failed', function (response){
+                    alert("Payment Failed: " + response.error.description);
+                });
+                rzp1.open();
+                
+                document.getElementById('proModal').classList.add('hidden');
+                btn.innerHTML = 'Proceed to Checkout';
+                btn.disabled = false;
+
+            } catch (error) {
+                console.error(error);
+                alert("Network error.");
+                btn.innerHTML = 'Proceed to Checkout';
+                btn.disabled = false;
+            }
         }
     </script>
 </body>

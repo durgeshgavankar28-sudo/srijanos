@@ -100,28 +100,43 @@ app.post('/api/ai-ideas', (req, res) => {
 });
 
 // 4. Secure Payment Gateway Simulation
-app.post('/api/checkout', (req, res) => {
-    const { cardNumber, expiry, cvv } = req.body;
-    
-    // Bank-level validation simulation
-    if (!cardNumber || cardNumber.length < 15) {
-        return res.status(400).json({ error: "Validation Failed: Invalid card number." });
-    }
-    if (!expiry || !cvv) {
-        return res.status(400).json({ error: "Validation Failed: Incomplete card details." });
-    }
-    
-    // Simulate bank decline for certain test cards (e.g., starting with 4000)
-    if (cardNumber.startsWith("4000")) {
-        return res.status(402).json({ error: "Bank Decline: Insufficient funds or card blocked." });
-    }
+app.post('/api/create-order', async (req, res) => {
+    try {
+        const rzp = new require('razorpay')({
+            key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+            key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder'
+        });
 
-    // Simulate secure network processing delay (2 seconds)
-    setTimeout(() => {
-        // In production, this is where Stripe/Razorpay API is called
-        const transactionId = "pay_" + Math.random().toString(36).substr(2, 12);
-        res.json({ success: true, transactionId });
-    }, 2000);
+        const options = {
+            amount: 999 * 100, // ₹999 in paise
+            currency: "INR",
+            receipt: "receipt_order_" + Date.now()
+        };
+
+        const order = await rzp.orders.create(options);
+        res.json({ success: true, order });
+    } catch (error) {
+        console.error("Razorpay Order Error:", error);
+        res.status(500).json({ error: "Failed to create payment order." });
+    }
+});
+
+app.post('/api/verify-payment', (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const secret = process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
+    
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSignature = require('crypto')
+        .createHmac("sha256", secret)
+        .update(body.toString())
+        .digest("hex");
+        
+    if (expectedSignature === razorpay_signature) {
+        // In a real app, update DB to PRO here
+        res.json({ success: true, message: "Payment verified successfully!" });
+    } else {
+        res.status(400).json({ success: false, error: "Invalid signature" });
+    }
 });
 
 // 5. User Authentication & Sprint Persistence
