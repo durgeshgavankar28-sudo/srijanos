@@ -102,7 +102,8 @@ app.post('/api/ai-ideas', (req, res) => {
 // 4. Secure Payment Gateway Simulation
 app.post('/api/create-order', async (req, res) => {
     try {
-        const rzp = new require('razorpay')({
+        const Razorpay = require('razorpay');
+        const rzp = new Razorpay({
             key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
             key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder'
         });
