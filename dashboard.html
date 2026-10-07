@@ -6,6 +6,7 @@
     <title>Srijan | The Employee to Entrepreneur OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; background-color: #f8fafc; }
         .gradient-text { background: linear-gradient(90deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -628,6 +629,33 @@
             }
         }
 
+        async function generatePlan(ideaTitle, btnElement) {
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>AI is writing (takes 10s)...';
+            btnElement.disabled = true;
+
+            try {
+                const response = await fetch('/api/business-plan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idea: ideaTitle })
+                });
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert("AI Error: " + data.error);
+                } else if (data.plan) {
+                    document.getElementById('planContent').innerHTML = marked.parse(data.plan);
+                    document.getElementById('planModal').classList.remove('hidden');
+                }
+            } catch (err) {
+                alert("Network error.");
+            } finally {
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
+            }
+        }
+
         // Fetch Ideas (Database Integration)
         async function fetchIdeas() {
             const budget = document.getElementById('budgetInput').value;
@@ -657,8 +685,11 @@
                                 <p class="text-slate-600 text-sm mb-6">${idea.description}</p>
                             </div>
                             <div>
-                                <button id="btn-${idea.id}" onclick="toggleStrategy(${idea.id})" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition">
+                                <button id="btn-${idea.id}" onclick="toggleStrategy(${idea.id})" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition mb-3">
                                     <i class="fa-solid fa-bolt mr-2"></i>View Deep Strategy
+                                </button>
+                                <button onclick="generatePlan('${idea.title.replace(/'/g, "\\'")}', this)" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition">
+                                    <i class="fa-solid fa-file-invoice mr-2"></i>Generate 10-Page AI Plan
                                 </button>
                                 <div id="strategy-${idea.id}" class="hidden">
                                     ${idea.strategy_html}
@@ -1031,5 +1062,17 @@
             }
         }
     </script>
+    <!-- PLAN MODAL -->
+    <div id="planModal" class="hidden fixed inset-0 bg-slate-900/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl relative flex flex-col h-[80vh] overflow-hidden">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h3 class="font-black text-2xl text-slate-800"><i class="fa-solid fa-file-invoice text-blue-600 mr-2"></i>Generated AI Business Plan</h3>
+                <button onclick="document.getElementById('planModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="p-8 overflow-y-auto flex-1 prose prose-slate max-w-none prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-a:text-blue-600 prose-li:marker:text-blue-500" id="planContent">
+                <!-- Markdown Content rendered here -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>

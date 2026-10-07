@@ -220,16 +220,43 @@ app.post('/api/sprint', (req, res) => {
 });
 
 // Load .env file manually without external dependencies
-let GEMINI_API_KEY = null;
+let GEMINI_API_KEY = process.env.GEMINI_API_KEY || null;
 try {
     const envFile = fs.readFileSync('.env', 'utf8');
     const match = envFile.match(/GEMINI_API_KEY=(.*)/);
     if (match && match[1] !== 'paste_your_real_key_here') {
-        GEMINI_API_KEY = match[1].trim();
+        GEMINI_API_KEY = GEMINI_API_KEY || match[1].trim();
     }
-} catch (e) {
-    // No .env file found
-}
+} catch (e) {}
+
+app.post('/api/business-plan', async (req, res) => {
+    const { idea } = req.body;
+    if (!GEMINI_API_KEY) {
+        return res.json({ error: "Gemini API Key missing. Add it to Render Environment Variables." });
+    }
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                system_instruction: {
+                    parts: { text: "You are an elite business planner for Indian startups. Generate a highly detailed, 10-page equivalent business plan in Markdown format. Include: Executive Summary, Market Analysis (Indian context), Monetization Strategy, Go-To-Market Plan, and Technical Architecture." }
+                },
+                contents: [{ parts: [{ text: `Generate a comprehensive business plan for this startup idea: ${idea}` }] }]
+            })
+        });
+        
+        const data = await response.json();
+        if (data.candidates && data.candidates[0].content) {
+            res.json({ plan: data.candidates[0].content.parts[0].text });
+        } else {
+            res.json({ error: "Failed to generate plan." });
+        }
+    } catch (error) {
+        res.json({ error: "Network error while reaching Google AI." });
+    }
+});
 
 // 6. True Generative AI Mentor Chatbot (LLM Integration)
 app.post('/api/chat', async (req, res) => {
