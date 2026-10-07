@@ -10,6 +10,49 @@ const DB_FILE = './database.json';
 // Middleware
 app.use(cors());
 app.use(express.json());
+// Analytics Logic
+const ANALYTICS_FILE = './analytics.json';
+function getAnalytics() {
+    if (!fs.existsSync(ANALYTICS_FILE)) return { total_visits: 0, paths: {}, last_visits: [] };
+    return JSON.parse(fs.readFileSync(ANALYTICS_FILE, 'utf8'));
+}
+function saveAnalytics(data) {
+    fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(data, null, 2));
+}
+
+app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.includes('.')) {
+        // Log simple requests like / or /dashboard
+        const stats = getAnalytics();
+        stats.total_visits++;
+        
+        let p = req.path;
+        if (p === '/') p = '/index.html';
+        
+        stats.paths[p] = (stats.paths[p] || 0) + 1;
+        
+        // Keep last 20 visits for a live feed
+        stats.last_visits.unshift({
+            time: new Date().toISOString(),
+            path: p,
+            userAgent: req.headers['user-agent']
+        });
+        if (stats.last_visits.length > 20) stats.last_visits.pop();
+        
+        saveAnalytics(stats);
+    } else if (req.method === 'GET' && (req.path === '/index.html' || req.path === '/dashboard.html')) {
+        const stats = getAnalytics();
+        stats.total_visits++;
+        stats.paths[req.path] = (stats.paths[req.path] || 0) + 1;
+        saveAnalytics(stats);
+    }
+    next();
+});
+
+app.get('/api/admin/stats', (req, res) => {
+    res.json(getAnalytics());
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 function getDB() {
