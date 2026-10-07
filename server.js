@@ -3,6 +3,27 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
+const mongoose = require('mongoose');
+if (process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => console.log('Connected to MongoDB Atlas'))
+        .catch(err => console.error('MongoDB Connection Error:', err));
+}
+
+const UserSchema = new mongoose.Schema({
+    email: String,
+    name: String,
+    role: String,
+    offer: String,
+    need: String,
+    sprintProgress: Array
+});
+const User = mongoose.model('User', UserSchema);
+
+const WaitlistSchema = new mongoose.Schema({ email: String, timestamp: Date });
+const Waitlist = mongoose.model('Waitlist', WaitlistSchema);
+
+
 const app = express();
 const PORT = 3000;
 const DB_FILE = './database.json';
@@ -184,38 +205,46 @@ app.post('/api/verify-payment', (req, res) => {
 });
 
 // 5. User Authentication & Sprint Persistence
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required" });
-    
-    const db = getDB();
-    if (!db.users) db.users = [];
-    
-    let user = db.users.find(u => u.email === email.toLowerCase());
-    if (!user) {
-        // Create new user
-        user = { email: email.toLowerCase(), sprintProgress: [] };
-        db.users.push(user);
-        saveDB(db);
+    let user;
+    if (process.env.MONGODB_URI) {
+        user = await User.findOne({ email: email.toLowerCase() });
+        if (!user) {
+            user = await User.create({ email: email.toLowerCase(), sprintProgress: [] });
+        }
+    } else {
+        const db = getDB();
+        if (!db.users) db.users = [];
+        user = db.users.find(u => u.email === email.toLowerCase());
+        if (!user) {
+            user = { email: email.toLowerCase(), sprintProgress: [] };
+            db.users.push(user);
+            saveDB(db);
+        }
     }
-    
     res.json({ success: true, user });
 });
 
-app.post('/api/sprint', (req, res) => {
+app.post('/api/sprint', async (req, res) => {
     const { email, progress } = req.body;
     if (!email) return res.status(400).json({ error: "Unauthorized" });
     
-    const db = getDB();
-    if (!db.users) db.users = [];
-    
-    let user = db.users.find(u => u.email === email.toLowerCase());
-    if (user) {
-        user.sprintProgress = progress;
-        saveDB(db);
+    if (process.env.MONGODB_URI) {
+        await User.findOneAndUpdate({ email: email.toLowerCase() }, { sprintProgress: progress });
         res.json({ success: true });
     } else {
-        res.status(404).json({ error: "User not found" });
+        const db = getDB();
+        if (!db.users) db.users = [];
+        let user = db.users.find(u => u.email === email.toLowerCase());
+        if (user) {
+            user.sprintProgress = progress;
+            saveDB(db);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
     }
 });
 
@@ -329,32 +358,42 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // 7. Profile Editor & Skill Barter Network
-app.post('/api/profile', (req, res) => {
+app.post('/api/profile', async (req, res) => {
     const { email, name, role, offer, need } = req.body;
     if (!email) return res.status(400).json({ error: "Unauthorized" });
     
-    const db = getDB();
-    if (!db.users) db.users = [];
-    
-    let user = db.users.find(u => u.email === email.toLowerCase());
-    if (user) {
-        user.name = name;
-        user.role = role;
-        user.offer = offer;
-        user.need = need;
-        saveDB(db);
-        res.json({ success: true, user });
+    if (process.env.MONGODB_URI) {
+        let user = await User.findOneAndUpdate({ email: email.toLowerCase() }, { name, role, offer, need }, { new: true });
+        if (user) return res.json({ success: true, user });
+        return res.status(404).json({ error: "User not found" });
     } else {
-        res.status(404).json({ error: "User not found" });
+        const db = getDB();
+        if (!db.users) db.users = [];
+        let user = db.users.find(u => u.email === email.toLowerCase());
+        if (user) {
+            user.name = name;
+            user.role = role;
+            user.offer = offer;
+            user.need = need;
+            saveDB(db);
+            res.json({ success: true, user });
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
     }
 });
 
-app.get('/api/profiles', (req, res) => {
-    const db = getDB();
-    if (!db.users) return res.json({ profiles: [] });
+app.get('/api/profiles', async (req, res) => {
+    let users = [];
+    if (process.env.MONGODB_URI) {
+        users = await User.find({ role: { $exists: true, $ne: null }, offer: { $exists: true, $ne: null } });
+    } else {
+        const db = getDB();
+        users = db.users || [];
+        users = users.filter(u => u.role && u.offer && u.need);
+    }
     
-    // Filter only users who have filled out their barter profiles
-    const profiles = db.users.filter(u => u.role && u.offer && u.need).map(u => ({
+    const profiles = users.map(u => ({
         name: u.name || u.email.split('@')[0],
         role: u.role,
         offer: u.offer,
