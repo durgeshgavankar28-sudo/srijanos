@@ -314,7 +314,7 @@ The proposed business model for **${idea}** aims to bridge a critical gap in the
             `;
             return res.json({ plan: fallbackPlan });
         } else if (data.error) {
-            return res.json({ error: \`API Error: ${data.error.message}\` });
+            return res.json({ error: `API Error: ${data.error.message}` });
         } else {
             return res.json({ error: "Failed to generate plan. Invalid response from Google AI." });
         }
