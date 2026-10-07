@@ -265,7 +265,7 @@ app.post('/api/business-plan', async (req, res) => {
     }
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -279,8 +279,10 @@ app.post('/api/business-plan', async (req, res) => {
         const data = await response.json();
         if (data.candidates && data.candidates[0].content) {
             res.json({ plan: data.candidates[0].content.parts[0].text });
+        } else if (data.error) {
+            res.json({ error: `API Error: ${data.error.message}` });
         } else {
-            res.json({ error: "Failed to generate plan." });
+            res.json({ error: "Failed to generate plan. Invalid response from Google AI." });
         }
     } catch (error) {
         res.json({ error: "Network error while reaching Google AI." });
