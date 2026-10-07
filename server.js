@@ -278,14 +278,48 @@ app.post('/api/business-plan', async (req, res) => {
         
         const data = await response.json();
         if (data.candidates && data.candidates[0].content) {
-            res.json({ plan: data.candidates[0].content.parts[0].text });
+            return res.json({ plan: data.candidates[0].content.parts[0].text });
+        } else if (data.error && data.error.code === 429) {
+            // Quota Exhausted Fallback
+            const fallbackPlan = `
+# Business Plan: ${idea}
+*(Google AI API Quota Exhausted - Showing Local Template)*
+
+## 1. Executive Summary
+The proposed business model for **${idea}** aims to bridge a critical gap in the Indian market. By leveraging low-cost digital distribution and local community networks, this startup will achieve rapid market penetration within the first 6 months.
+
+## 2. Market Analysis (Indian Context)
+- **TAM (Total Addressable Market):** India's rapid digital adoption has created a massive middle-class consumer base.
+- **Competitor Landscape:** Highly fragmented. Most competitors rely on outdated legacy systems.
+- **Unique Selling Proposition (USP):** Hyper-localized customer support and a highly optimized mobile-first experience.
+
+## 3. Monetization Strategy
+1. **Tier 1 (Free/Trial):** Basic access to generate lead velocity.
+2. **Tier 2 (Pro - ₹999/mo):** Advanced features tailored for power users.
+3. **Tier 3 (Enterprise):** Custom pricing for B2B clients requiring SLA agreements.
+
+## 4. Go-To-Market Plan
+- **Week 1-2:** Guerrilla marketing in specialized WhatsApp and Telegram groups.
+- **Week 3-4:** Launch on local platforms (Reddit's r/StartUpIndia, local LinkedIn groups).
+- **Month 2-3:** Re-invest initial revenue into localized Facebook Lead Generation ads.
+
+## 5. Technical Architecture
+- **Frontend:** HTML/TailwindCSS for rapid iteration.
+- **Backend:** Node.js hosted on Render.
+- **Database:** MongoDB Atlas (NoSQL) for high scalability and flexible schemas.
+- **Payments:** Razorpay integration for seamless UPI and Netbanking acceptance.
+
+---
+*To unlock dynamic 10-page AI generation, please upgrade your Google AI Studio API Key to a paid billing tier.*
+            `;
+            return res.json({ plan: fallbackPlan });
         } else if (data.error) {
-            res.json({ error: `API Error: ${data.error.message}` });
+            return res.json({ error: \`API Error: ${data.error.message}\` });
         } else {
-            res.json({ error: "Failed to generate plan. Invalid response from Google AI." });
+            return res.json({ error: "Failed to generate plan. Invalid response from Google AI." });
         }
     } catch (error) {
-        res.json({ error: "Network error while reaching Google AI." });
+        return res.json({ error: "Network error while reaching Google AI." });
     }
 });
 
