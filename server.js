@@ -10,8 +10,14 @@ if (process.env.MONGODB_URI) {
         .catch(err => console.error('MongoDB Connection Error:', err));
 }
 
+const crypto = require('crypto');
+function hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex');
+}
+
 const UserSchema = new mongoose.Schema({
     email: String,
+    passwordHash: String,
     name: String,
     role: String,
     offer: String,
@@ -206,22 +212,31 @@ app.post('/api/verify-payment', (req, res) => {
 
 // 5. User Authentication & Sprint Persistence
 app.post('/api/login', async (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: "Email required" });
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: "Email and Password required" });
+    
+    const hashed = hashPassword(password);
     let user;
+    
     if (process.env.MONGODB_URI) {
         user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {
-            user = await User.create({ email: email.toLowerCase(), sprintProgress: [] });
+            // New user registration
+            user = await User.create({ email: email.toLowerCase(), passwordHash: hashed, sprintProgress: [] });
+        } else if (user.passwordHash !== hashed) {
+            return res.status(401).json({ error: "Invalid password" });
         }
     } else {
         const db = getDB();
         if (!db.users) db.users = [];
         user = db.users.find(u => u.email === email.toLowerCase());
         if (!user) {
-            user = { email: email.toLowerCase(), sprintProgress: [] };
+            // New user registration
+            user = { email: email.toLowerCase(), passwordHash: hashed, sprintProgress: [] };
             db.users.push(user);
             saveDB(db);
+        } else if (user.passwordHash !== hashed) {
+            return res.status(401).json({ error: "Invalid password" });
         }
     }
     res.json({ success: true, user });
