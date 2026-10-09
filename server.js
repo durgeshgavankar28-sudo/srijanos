@@ -224,6 +224,10 @@ app.post('/api/login', async (req, res) => {
         if (!user) {
             // New user registration
             user = await User.create({ email: email.toLowerCase(), passwordHash: hashed, sprintProgress: [] });
+        } else if (!user.passwordHash) {
+            // Migrate legacy user
+            user.passwordHash = hashed;
+            await user.save();
         } else if (user.passwordHash !== hashed) {
             return res.status(401).json({ error: "Invalid password" });
         }
@@ -235,6 +239,10 @@ app.post('/api/login', async (req, res) => {
             // New user registration
             user = { email: email.toLowerCase(), passwordHash: hashed, sprintProgress: [] };
             db.users.push(user);
+            saveDB(db);
+        } else if (!user.passwordHash) {
+            // Migrate legacy user
+            user.passwordHash = hashed;
             saveDB(db);
         } else if (user.passwordHash !== hashed) {
             return res.status(401).json({ error: "Invalid password" });

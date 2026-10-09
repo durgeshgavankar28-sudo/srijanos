@@ -542,11 +542,12 @@
 
         async function performLogin() {
             const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             const btn = document.getElementById('loginBtn');
             const err = document.getElementById('loginError');
             
-            if (!email.includes('@')) {
-                err.innerText = "Please enter a valid email.";
+            if (!email.includes('@') || password.length < 4) {
+                err.innerText = "Enter a valid email and a password (min 4 chars).";
                 err.classList.remove('hidden');
                 return;
             }
@@ -554,17 +555,29 @@
             err.classList.add('hidden');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email })
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                localStorage.setItem('srijanUser', data.user.email);
-                document.getElementById('loginModal').classList.add('hidden');
-                checkAuth();
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                
+                btn.innerText = 'Continue';
+                
+                if (data.error) {
+                    err.innerText = data.error;
+                    err.classList.remove('hidden');
+                } else {
+                    localStorage.setItem('srijanUser', email);
+                    currentUser = email;
+                    document.getElementById('loginModal').classList.add('hidden');
+                    checkAuth();
+                }
+            } catch (error) {
+                btn.innerText = 'Continue';
+                err.innerText = "Network error. Try again.";
+                err.classList.remove('hidden');
             }
         }
 
