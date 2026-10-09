@@ -375,6 +375,66 @@
 
         // AUTHENTICATION & SYNC LOGIC
         let currentUser = null;
+        let currentPlanTitle = "";
+        let currentPlanContent = "";
+        
+        async function saveCurrentPlan() {
+            if (!currentUser) {
+                document.getElementById('loginModal').classList.remove('hidden');
+                return;
+            }
+            const btn = document.getElementById('savePlanBtn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving...';
+            try {
+                const res = await fetch('/api/save-plan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: currentUser, title: currentPlanTitle, content: currentPlanContent })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Saved!';
+                    btn.classList.replace('bg-slate-900', 'bg-emerald-600');
+                }
+            } catch (err) {
+                btn.innerHTML = 'Error Saving';
+            }
+        }
+        
+        async function loadSavedPlans() {
+            if (!currentUser) return;
+            document.getElementById('profileDropdown').classList.add('hidden');
+            document.getElementById('savedPlansModal').classList.remove('hidden');
+            const list = document.getElementById('savedPlansList');
+            list.innerHTML = '<p class="text-center text-slate-500 py-8">Loading...</p>';
+            
+            try {
+                const res = await fetch('/api/me?email=' + encodeURIComponent(currentUser));
+                const data = await res.json();
+                if (data.user && data.user.savedPlans && data.user.savedPlans.length > 0) {
+                    list.innerHTML = data.user.savedPlans.map((plan, i) => `
+                        <div class="border border-slate-200 p-4 rounded-xl mb-4 hover:border-blue-300 transition cursor-pointer" onclick="viewSavedPlan(${i})">
+                            <h4 class="font-bold text-lg">${plan.title}</h4>
+                            <p class="text-xs text-slate-400 mt-1">Saved on: ${new Date(plan.date).toLocaleDateString()}</p>
+                        </div>
+                    `).join('');
+                    window.tempSavedPlans = data.user.savedPlans;
+                } else {
+                    list.innerHTML = '<p class="text-center text-slate-500 py-8">No saved plans yet. Generate one in the Idea Engine!</p>';
+                }
+            } catch (err) {
+                list.innerHTML = '<p class="text-center text-red-500 py-8">Error loading plans.</p>';
+            }
+        }
+        
+        function viewSavedPlan(index) {
+            const plan = window.tempSavedPlans[index];
+            document.getElementById('savedPlansModal').classList.add('hidden');
+            document.getElementById('planContent').innerHTML = marked.parse(plan.content);
+            document.getElementById('savePlanBtn').classList.add('hidden'); // Already saved
+            document.getElementById('planModal').classList.remove('hidden');
+        }
+
 
         window.onload = () => {
             fetchIdeas();
@@ -635,7 +695,8 @@
             btnElement.disabled = true;
 
             try {
-                const response = await fetch('/api/business-plan', {
+                currentPlanTitle = ideaTitle;
+            const response = await fetch('/api/business-plan', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ idea: ideaTitle })
@@ -645,6 +706,10 @@
                 if (data.error) {
                     alert("AI Error: " + data.error);
                 } else if (data.plan) {
+                    currentPlanContent = data.plan;
+                    document.getElementById('savePlanBtn').classList.remove('hidden');
+                    document.getElementById('savePlanBtn').innerHTML = '<i class="fa-solid fa-bookmark mr-2"></i>Save to Profile';
+                    document.getElementById('savePlanBtn').classList.replace('bg-emerald-600', 'bg-slate-900');
                     document.getElementById('planContent').innerHTML = marked.parse(data.plan);
                     document.getElementById('planModal').classList.remove('hidden');
                 }
@@ -1063,12 +1128,29 @@
             }
         }
     </script>
+    
+    <!-- SAVED PLANS MODAL -->
+    <div id="savedPlansModal" class="hidden fixed inset-0 bg-slate-900/60 z-[150] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl relative flex flex-col h-[70vh] overflow-hidden">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h3 class="font-black text-2xl text-slate-800"><i class="fa-solid fa-bookmark text-blue-600 mr-2"></i>My Saved Plans</h3>
+                <button onclick="document.getElementById('savedPlansModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="p-8 overflow-y-auto flex-1 bg-slate-50/50" id="savedPlansList">
+                <!-- List renders here -->
+            </div>
+        </div>
+    </div>
+
     <!-- PLAN MODAL -->
     <div id="planModal" class="hidden fixed inset-0 bg-slate-900/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl relative flex flex-col h-[80vh] overflow-hidden">
             <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                 <h3 class="font-black text-2xl text-slate-800"><i class="fa-solid fa-file-invoice text-blue-600 mr-2"></i>Generated AI Business Plan</h3>
-                <button onclick="document.getElementById('planModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-times"></i></button>
+                <div class="flex items-center gap-4">
+                    <button id="savePlanBtn" onclick="saveCurrentPlan()" class="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-800 transition"><i class="fa-solid fa-bookmark mr-2"></i>Save to Profile</button>
+                    <button onclick="document.getElementById('planModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-times"></i></button>
+                </div>
             </div>
             <div class="p-8 overflow-y-auto flex-1 prose prose-slate max-w-none prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-a:text-blue-600 prose-li:marker:text-blue-500" id="planContent">
                 <!-- Markdown Content rendered here -->

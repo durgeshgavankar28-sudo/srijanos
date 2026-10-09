@@ -22,7 +22,8 @@ const UserSchema = new mongoose.Schema({
     role: String,
     offer: String,
     need: String,
-    sprintProgress: Array
+    sprintProgress: Array,
+    savedPlans: Array
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -452,6 +453,59 @@ app.get('/api/profiles', async (req, res) => {
     }));
     
     res.json({ profiles });
+});
+
+
+app.post('/api/save-plan', async (req, res) => {
+    const { email, title, content } = req.body;
+    if (!email || !title || !content) return res.status(400).json({ error: "Missing data" });
+
+    if (process.env.MONGODB_URI) {
+        let user = await User.findOne({ email: email.toLowerCase() });
+        if (user) {
+            user.savedPlans = user.savedPlans || [];
+            user.savedPlans.push({ title, content, date: new Date().toISOString() });
+            await user.save();
+            return res.json({ success: true, savedPlans: user.savedPlans });
+        }
+        return res.status(404).json({ error: "User not found" });
+    } else {
+        const db = getDB();
+        let user = db.users.find(u => u.email === email.toLowerCase());
+        if (user) {
+            user.savedPlans = user.savedPlans || [];
+            user.savedPlans.push({ title, content, date: new Date().toISOString() });
+            saveDB(db);
+            return res.json({ success: true, savedPlans: user.savedPlans });
+        }
+        return res.status(404).json({ error: "User not found" });
+    }
+});
+
+
+app.get('/api/me', async (req, res) => {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email required" });
+    
+    if (process.env.MONGODB_URI) {
+        let user = await User.findOne({ email: email.toLowerCase() });
+        if (user) {
+            // Strip passwordHash before sending
+            const userObj = user.toObject();
+            delete userObj.passwordHash;
+            return res.json({ success: true, user: userObj });
+        }
+        return res.status(404).json({ error: "User not found" });
+    } else {
+        const db = getDB();
+        let user = db.users.find(u => u.email === email.toLowerCase());
+        if (user) {
+            const userObj = { ...user };
+            delete userObj.passwordHash;
+            return res.json({ success: true, user: userObj });
+        }
+        return res.status(404).json({ error: "User not found" });
+    }
 });
 
 app.listen(PORT, () => {
