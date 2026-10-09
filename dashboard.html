@@ -630,8 +630,51 @@
         }
 
         // Govt Scheme Matcher Logic
+        const schemeDatabase = [
+            {
+                name: "Pradhan Mantri Mudra Yojana (PMMY)",
+                desc: "Collateral-free loans up to ₹10 Lakhs for small/micro enterprises.",
+                link: "https://www.mudra.org.in/",
+                match: (g, c, s) => true, // Everyone qualifies
+                label: "High Match", color: "emerald"
+            },
+            {
+                name: "Stand-Up India Scheme",
+                desc: "Bank loans between ₹10 Lakh and ₹1 Crore for setting up a greenfield enterprise.",
+                link: "https://www.standupmitra.in/",
+                match: (g, c, s) => g === "Female" || c === "SC/ST",
+                label: "High Match", color: "emerald"
+            },
+            {
+                name: "Prime Minister's Employment Generation Programme (PMEGP)",
+                desc: "Credit-linked subsidy program to generate employment in rural and urban areas.",
+                link: "https://www.kviconline.gov.in/pmegpeportal/jsp/pmegponline.jsp",
+                match: (g, c, s) => s === "Manufacturing" || s === "Services",
+                label: "Medium Match", color: "blue"
+            },
+            {
+                name: "Credit Guarantee Fund Trust for Micro and Small Enterprises (CGTMSE)",
+                desc: "Collateral-free credit up to ₹200 lakh for Micro and Small Enterprises.",
+                link: "https://www.cgtmse.in/",
+                match: (g, c, s) => s === "Manufacturing" || s === "Services",
+                label: "Medium Match", color: "blue"
+            },
+            {
+                name: "TREAD (Trade Related Entrepreneurship Assistance and Development)",
+                desc: "Government grant up to 30% of total project cost as appraised by lending institutions.",
+                link: "https://msme.gov.in/",
+                match: (g, c, s) => g === "Female",
+                label: "High Match", color: "emerald"
+            }
+        ];
+
         function findSchemes() {
             const btn = document.getElementById('schemeBtn');
+            const selects = document.querySelectorAll('#content-schemes select');
+            const gender = selects[0].value;
+            const category = selects[1].value;
+            const sector = selects[2].value;
+
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Analyzing Demographics...';
             btn.classList.add('opacity-75', 'cursor-not-allowed');
             
@@ -640,7 +683,24 @@
                 btn.classList.remove('opacity-75', 'cursor-not-allowed');
                 btn.classList.replace('bg-blue-600', 'bg-emerald-600');
                 btn.classList.replace('hover:bg-blue-700', 'hover:bg-emerald-700');
-            }, 1500);
+                
+                const matches = schemeDatabase.filter(s => s.match(gender, category, sector));
+                const resultsContainer = document.querySelector('#content-schemes .grid.md\\:grid-cols-2');
+                
+                if (matches.length > 0) {
+                    resultsContainer.innerHTML = matches.map(s => `
+                        <div class="bg-white p-6 border border-slate-200 rounded-2xl hover:shadow-md transition">
+                            <h3 class="font-bold text-xl mb-2">${s.name}</h3>
+                            <p class="text-slate-600 text-sm mb-4">${s.desc}</p>
+                            <span class="bg-${s.color}-100 text-${s.color}-800 text-xs font-bold px-3 py-1 rounded-full">${s.label}</span>
+                            <a href="${s.link}" target="_blank" class="mt-4 inline-block text-blue-600 font-bold text-sm hover:underline">Read Application Guide &rarr;</a>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsContainer.innerHTML = `<div class="col-span-2 bg-slate-50 p-6 rounded-2xl text-center text-slate-500 font-medium">No highly specific schemes found for this exact demographic combination. Try adjusting parameters.</div>`;
+                }
+                
+            }, 1000);
         }
 
         // Main App Tab Navigation
