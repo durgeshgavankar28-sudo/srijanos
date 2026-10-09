@@ -633,10 +633,10 @@
         const schemeDatabase = [
             {
                 name: "Pradhan Mantri Mudra Yojana (PMMY)",
-                desc: "Collateral-free loans up to ₹10 Lakhs for small/micro enterprises.",
+                desc: "Collateral-free loans up to ₹10 Lakhs for small/micro enterprises. Ideal for quick capital.",
                 link: "https://www.mudra.org.in/",
-                match: (g, c, s) => true, // Everyone qualifies
-                label: "High Match", color: "emerald"
+                match: (g, c, s) => true, 
+                label: "Universal Match", color: "emerald"
             },
             {
                 name: "Stand-Up India Scheme",
@@ -646,25 +646,67 @@
                 label: "High Match", color: "emerald"
             },
             {
+                name: "Ambedkar Social Innovation & Incubation Mission (ASIIM)",
+                desc: "Up to ₹30 Lakhs funding over 3 years for SC youth establishing tech startups.",
+                link: "https://vcfsc.in/",
+                match: (g, c, s) => c === "SC/ST",
+                label: "High Match", color: "emerald"
+            },
+            {
                 name: "Prime Minister's Employment Generation Programme (PMEGP)",
-                desc: "Credit-linked subsidy program to generate employment in rural and urban areas.",
-                link: "https://www.kviconline.gov.in/pmegpeportal/jsp/pmegponline.jsp",
+                desc: "Credit-linked subsidy up to 35%. Max ₹50 Lakhs for Manufacturing, ₹20 Lakhs for Services.",
+                link: "https://www.kviconline.gov.in/pmegpeportal/",
                 match: (g, c, s) => s === "Manufacturing" || s === "Services",
                 label: "Medium Match", color: "blue"
             },
             {
-                name: "Credit Guarantee Fund Trust for Micro and Small Enterprises (CGTMSE)",
-                desc: "Collateral-free credit up to ₹200 lakh for Micro and Small Enterprises.",
+                name: "Credit Guarantee Fund Trust (CGTMSE)",
+                desc: "Collateral-free credit up to ₹5 Crore for Micro and Small Enterprises via banks.",
                 link: "https://www.cgtmse.in/",
                 match: (g, c, s) => s === "Manufacturing" || s === "Services",
                 label: "Medium Match", color: "blue"
             },
             {
-                name: "TREAD (Trade Related Entrepreneurship Assistance and Development)",
-                desc: "Government grant up to 30% of total project cost as appraised by lending institutions.",
+                name: "Startup India Seed Fund Scheme (SISFS)",
+                desc: "Financial assistance up to ₹50 Lakhs for proof of concept, prototype development, and market-entry.",
+                link: "https://seedfund.startupindia.gov.in/",
+                match: (g, c, s) => true, 
+                label: "Universal Match", color: "blue"
+            },
+            {
+                name: "TREAD (Trade Related Entrepreneurship Assistance)",
+                desc: "Government grant up to 30% of total project cost for women entrepreneurs.",
                 link: "https://msme.gov.in/",
                 match: (g, c, s) => g === "Female",
                 label: "High Match", color: "emerald"
+            },
+            {
+                name: "MSME Market Development Assistance (MDA)",
+                desc: "Subsidies for participating in international trade fairs to help MSMEs export products.",
+                link: "https://msme.gov.in/",
+                match: (g, c, s) => s === "Trading" || s === "Manufacturing",
+                label: "Medium Match", color: "blue"
+            },
+            {
+                name: "Single Point Registration Scheme (SPRS)",
+                desc: "Exemption from payment of Earnest Money Deposit (EMD) when bidding for government tenders.",
+                link: "https://www.nsic.co.in/schemes/Single-Point-Registration",
+                match: (g, c, s) => s === "Manufacturing" || s === "Services",
+                label: "Medium Match", color: "blue"
+            },
+            {
+                name: "Raw Material Assistance Scheme (RMA)",
+                desc: "Financial assistance for procurement of raw materials up to 180 days credit.",
+                link: "https://www.nsic.co.in/schemes/Raw-Material-Assistance",
+                match: (g, c, s) => s === "Manufacturing",
+                label: "High Match", color: "emerald"
+            },
+            {
+                name: "Coir Udyami Yojana (CUY)",
+                desc: "Credit linked subsidy scheme for setting up coir units with project cost up to ₹10 lakhs.",
+                link: "https://coirboard.gov.in/",
+                match: (g, c, s) => s === "Manufacturing",
+                label: "Niche Match", color: "purple"
             }
         ];
 
