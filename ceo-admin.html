@@ -43,25 +43,45 @@
             </div>
         </div>
 
-        <!-- Live Feed -->
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
-            <div class="bg-slate-850 p-4 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-lg"><i class="fa-solid fa-satellite-dish mr-2 text-emerald-500"></i> Live Visitor Feed (Last 20)</h3>
-                <span class="text-xs text-slate-500 font-mono" id="lastUpdated">Updating...</span>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <!-- Live Feed -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+                <div class="bg-slate-850 p-4 border-b border-slate-700 flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-satellite-dish mr-2 text-emerald-500"></i> Live Visitor Feed</h3>
+                    <span class="text-xs text-slate-500 font-mono" id="lastUpdated">Updating...</span>
+                </div>
+                <div class="p-0">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 text-slate-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 border-b border-slate-700">Time</th>
+                                <th class="p-4 border-b border-slate-700">Path</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedTable" class="text-sm font-mono text-slate-300">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="p-0">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-900 text-slate-400 text-sm uppercase tracking-wider">
-                            <th class="p-4 border-b border-slate-700">Time</th>
-                            <th class="p-4 border-b border-slate-700">Path</th>
-                            <th class="p-4 border-b border-slate-700">Device / Browser</th>
-                        </tr>
-                    </thead>
-                    <tbody id="feedTable" class="text-sm font-mono text-slate-300">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+
+            <!-- Recent Signups -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+                <div class="bg-slate-850 p-4 border-b border-slate-700 flex justify-between items-center">
+                    <h3 class="font-bold text-lg"><i class="fa-solid fa-users mr-2 text-purple-500"></i> Newest Users</h3>
+                </div>
+                <div class="p-0">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900 text-slate-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 border-b border-slate-700">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable" class="text-sm font-mono text-slate-300">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -69,13 +89,12 @@
     <script>
         async function fetchStats() {
             try {
-                document.getElementById('lastUpdated').innerText = 'Refreshing...';
                 const res = await fetch('/api/admin/stats');
                 const data = await res.json();
                 
                 document.getElementById('totalViews').innerText = data.total_visits || 0;
-                document.getElementById('landingHits').innerText = data.paths['/index.html'] || 0;
-                document.getElementById('dashboardHits').innerText = data.paths['/dashboard.html'] || 0;
+                document.getElementById('landingHits').innerText = (data.paths && data.paths['/index.html']) ? data.paths['/index.html'] : 0;
+                document.getElementById('dashboardHits').innerText = (data.paths && data.paths['/dashboard.html']) ? data.paths['/dashboard.html'] : 0;
                 
                 if (data.registeredUsers !== undefined) {
                     document.getElementById('registeredUsers').innerText = data.registeredUsers;
@@ -88,19 +107,26 @@
                 if (data.last_visits && data.last_visits.length > 0) {
                     data.last_visits.forEach(v => {
                         const date = new Date(v.time).toLocaleTimeString();
-                        let agent = v.userAgent || 'Unknown';
-                        if (agent.length > 50) agent = agent.substring(0, 50) + '...';
-
                         feed.innerHTML += `
                             <tr class="hover:bg-slate-700 transition border-b border-slate-700/50">
                                 <td class="p-4 whitespace-nowrap text-emerald-400">${date}</td>
                                 <td class="p-4 text-blue-300">${v.path}</td>
-                                <td class="p-4 text-slate-400 text-xs">${agent}</td>
                             </tr>
                         `;
                     });
                 } else {
-                    feed.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-slate-500 italic">No recent visitors. Awaiting Reddit traffic...</td></tr>`;
+                    feed.innerHTML = `<tr><td colspan="2" class="p-8 text-center text-slate-500 italic">No recent visitors. Awaiting Reddit traffic...</td></tr>`;
+                }
+
+                const usersTable = document.getElementById('usersTable');
+                if (data.recentSignups && data.recentSignups.length > 0) {
+                    usersTable.innerHTML = data.recentSignups.map(u => `
+                        <tr class="hover:bg-slate-700 transition border-b border-slate-700/50">
+                            <td class="p-4 font-medium text-white">${u.email}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    usersTable.innerHTML = '<tr><td class="p-8 text-center text-slate-500 italic">No users yet.</td></tr>';
                 }
 
                 document.getElementById('lastUpdated').innerText = 'Last updated: ' + new Date().toLocaleTimeString();
