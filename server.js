@@ -406,14 +406,14 @@ app.post('/api/chat', async (req, res) => {
             } else if (data.error && data.error.code === 429) {
                 // Quota exceeded
                 usingFallback = true;
-                aiResponse = "[Google AI Quota Exhausted: Falling back to Local Engine] ";
+                aiResponse = ""; // Removed ugly prefix
             } else {
                 usingFallback = true;
-                aiResponse = "[Google AI Error: Falling back to Local Engine] ";
+                aiResponse = ""; // Removed ugly prefix
             }
         } catch (error) {
             usingFallback = true;
-            aiResponse = "[Google AI Network Error: Falling back to Local Engine] ";
+            aiResponse = ""; // Removed ugly prefix
         }
     } else {
         usingFallback = true;
