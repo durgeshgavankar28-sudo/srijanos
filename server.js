@@ -77,8 +77,40 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get('/api/admin/stats', (req, res) => {
-    res.json(getAnalytics());
+app.get('/api/admin/stats', async (req, res) => {
+    const stats = getAnalytics();
+    
+    // Add MongoDB stats if available
+    if (process.env.MONGODB_URI) {
+        try {
+            const userCount = await User.countDocuments();
+            // Count total saved plans across all users
+            const usersWithPlans = await User.find({ "savedPlans.0": { "$exists": true } });
+            let planCount = 0;
+            usersWithPlans.forEach(u => planCount += (u.savedPlans ? u.savedPlans.length : 0));
+            
+            // Get last 10 registered users for the feed
+            const recentUsers = await User.find().sort({ _id: -1 }).limit(10).select('email name');
+            
+            stats.registeredUsers = userCount;
+            stats.totalSavedPlans = planCount;
+            stats.recentSignups = recentUsers;
+        } catch(err) {
+            console.error("Error fetching MongoDB stats:", err);
+        }
+    } else {
+        const db = getDB();
+        stats.registeredUsers = db.users ? db.users.length : 0;
+        
+        let planCount = 0;
+        if(db.users) {
+            db.users.forEach(u => planCount += (u.savedPlans ? u.savedPlans.length : 0));
+        }
+        stats.totalSavedPlans = planCount;
+        stats.recentSignups = (db.users || []).slice(-10).reverse().map(u => ({email: u.email, name: u.name}));
+    }
+    
+    res.json(stats);
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -153,7 +185,7 @@ app.post('/api/ai-ideas', (req, res) => {
         <div class="mb-8 p-8 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-2xl text-slate-900">${idx + 1}. ${idea.title}</h3>
-                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Min Budget: ₹${idea.min_budget}</span>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Min Budget: â‚¹${idea.min_budget}</span>
             </div>
             <p class="text-slate-600 mb-6 text-lg">${idea.description}</p>
             <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
@@ -180,7 +212,7 @@ app.post('/api/create-order', async (req, res) => {
         });
 
         const options = {
-            amount: 999 * 100, // ₹999 in paise
+            amount: 999 * 100, // â‚¹999 in paise
             currency: "INR",
             receipt: "receipt_order_" + Date.now()
         };
@@ -319,7 +351,7 @@ The proposed business model for **${idea}** aims to bridge a critical gap in the
 
 ## 3. Monetization Strategy
 1. **Tier 1 (Free/Trial):** Basic access to generate lead velocity.
-2. **Tier 2 (Pro - ₹999/mo):** Advanced features tailored for power users.
+2. **Tier 2 (Pro - â‚¹999/mo):** Advanced features tailored for power users.
 3. **Tier 3 (Enterprise):** Custom pricing for B2B clients requiring SLA agreements.
 
 ## 4. Go-To-Market Plan
@@ -393,11 +425,11 @@ app.post('/api/chat', async (req, res) => {
         const lowerMsg = (message || "").toLowerCase();
         
         if (lowerMsg.includes("gst") || lowerMsg.includes("tax") || lowerMsg.includes("register") || lowerMsg.includes("legal")) {
-            aiResponse += "For businesses in India, GST registration is only mandatory if your turnover exceeds ₹40 Lakhs (or ₹20 Lakhs for services). For now, I recommend registering as a Sole Proprietorship with an MSME Udyam Certificate. It takes 10 minutes and is completely free. Should we add 'Udyam Registration' to your Sprint?";
+            aiResponse += "For businesses in India, GST registration is only mandatory if your turnover exceeds â‚¹40 Lakhs (or â‚¹20 Lakhs for services). For now, I recommend registering as a Sole Proprietorship with an MSME Udyam Certificate. It takes 10 minutes and is completely free. Should we add 'Udyam Registration' to your Sprint?";
         } else if (lowerMsg.includes("fund") || lowerMsg.includes("loan") || lowerMsg.includes("money") || lowerMsg.includes("invest")) {
-            aiResponse += "If you need capital, avoid giving away equity early. SrijanOS integrates directly with the Govt's Mudra Loan scheme (up to ₹10 Lakhs collateral-free). Check the 'Govt Schemes' tab to see your eligibility. If you need larger venture capital, I can help you draft a pitch deck.";
+            aiResponse += "If you need capital, avoid giving away equity early. SrijanOS integrates directly with the Govt's Mudra Loan scheme (up to â‚¹10 Lakhs collateral-free). Check the 'Govt Schemes' tab to see your eligibility. If you need larger venture capital, I can help you draft a pitch deck.";
         } else if (lowerMsg.includes("marketing") || lowerMsg.includes("sales") || lowerMsg.includes("customers") || lowerMsg.includes("client")) {
-            aiResponse += "In India, WhatsApp marketing has a 98% open rate compared to 20% for email. For your first 100 customers, I highly recommend creating a WhatsApp Business catalog and running localized Facebook Lead Ads for ₹200/day. Have you identified your target audience yet?";
+            aiResponse += "In India, WhatsApp marketing has a 98% open rate compared to 20% for email. For your first 100 customers, I highly recommend creating a WhatsApp Business catalog and running localized Facebook Lead Ads for â‚¹200/day. Have you identified your target audience yet?";
         } else if (lowerMsg.includes("idea") || lowerMsg.includes("don't know") || lowerMsg.includes("what to build")) {
             aiResponse += "Don't stress. Go to the 'Idea Engine' tab and use our AI Generator. We have 300+ validated business models specifically for the Indian market. Once you pick one, come back here and I will help you execute the first step.";
         } else if (lowerMsg.includes("code") || lowerMsg.includes("tech") || lowerMsg.includes("app") || lowerMsg.includes("website")) {
@@ -406,7 +438,7 @@ app.post('/api/chat', async (req, res) => {
             const responses = [
                 "That's a strategic question. In the early days, execution is more important than perfection. What is the biggest bottleneck preventing you from launching this week?",
                 "Interesting approach. Have you validated this assumption with at least 5 potential paying customers?",
-                "As your AI Co-founder, I advise against over-optimizing right now. Focus on the core value proposition. Let's look at your 30-Day Sprint board—are you on track?"
+                "As your AI Co-founder, I advise against over-optimizing right now. Focus on the core value proposition. Let's look at your 30-Day Sprint boardâ€”are you on track?"
             ];
             aiResponse += responses[Math.floor(Math.random() * responses.length)];
         }
@@ -517,5 +549,5 @@ app.get('/api/me', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Srijan Backend Server is LIVE at http://localhost:${PORT}`);
+    console.log(`ðŸš€ Srijan Backend Server is LIVE at http://localhost:${PORT}`);
 });
