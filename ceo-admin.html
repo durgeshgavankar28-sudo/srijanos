@@ -76,6 +76,11 @@
                 document.getElementById('totalViews').innerText = data.total_visits || 0;
                 document.getElementById('landingHits').innerText = data.paths['/index.html'] || 0;
                 document.getElementById('dashboardHits').innerText = data.paths['/dashboard.html'] || 0;
+                
+                if (data.registeredUsers !== undefined) {
+                    document.getElementById('registeredUsers').innerText = data.registeredUsers;
+                    document.getElementById('totalPlans').innerText = data.totalSavedPlans;
+                }
 
                 const feed = document.getElementById('feedTable');
                 feed.innerHTML = '';
