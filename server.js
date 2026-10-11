@@ -135,6 +135,19 @@ app.post('/api/waitlist', (req, res) => {
 });
 
 // 2. Legacy Ideas (Dropdown)
+
+function getDynamicStrategy(idea) {
+    if (idea.strategy_html) return idea.strategy_html;
+    const b = idea.min_budget ? Number(idea.min_budget).toLocaleString('en-IN') : '25,000';
+    return `
+        <div class="space-y-4 text-sm text-slate-600 mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+            <div><strong class="text-slate-800 text-base"><i class="fa-solid fa-flag-checkered text-blue-600 mr-2"></i>Phase 1: Zero to One (First 30 Days)</strong><br>For <b>${idea.title}</b>, start lean. Your â‚¹${b} budget should focus 60% on direct outreach, 20% on basic operational tools, and 20% on legal compliance (GST/Udyam MSME).</div>
+            <div><strong class="text-slate-800 text-base"><i class="fa-solid fa-bullseye text-blue-600 mr-2"></i>Target Audience & Marketing</strong><br>For <b>${idea.niche || 'this sector'}</b>, focus on high-trust channels: WhatsApp Business groups, LinkedIn outreach, and direct referrals. Offer your first 3 clients a free trial in exchange for a video testimonial.</div>
+            <div><strong class="text-slate-800 text-base"><i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>CEO Secret Execution Tip</strong><br>In India, trust and speed win. Deliver faster than anyone expects, and ask every happy customer for an immediate personal introduction.</div>
+        </div>
+    `;
+}
+
 app.get('/api/ideas', (req, res) => {
     const budget = req.query.budget ? parseInt(req.query.budget) : 1000000;
     const niche = req.query.niche || 'All';
@@ -143,7 +156,12 @@ app.get('/api/ideas', (req, res) => {
     if (niche !== 'All') {
         matchingIdeas = matchingIdeas.filter(idea => idea.niche === niche);
     }
-    res.json({ ideas: matchingIdeas });
+    // Dynamically inject strategy_html so it never fails on frontend
+    const enrichedIdeas = matchingIdeas.map(idea => ({
+        ...idea,
+        strategy_html: getDynamicStrategy(idea)
+    }));
+    res.json({ ideas: enrichedIdeas });
 });
 
 // 3. NEW: AI Generative Engine (ChatGPT style)
