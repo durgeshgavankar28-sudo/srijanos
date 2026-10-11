@@ -20,16 +20,16 @@
 
     <!-- Top Navbar -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-seedling text-blue-600 text-3xl"></i>
-                <span class="text-3xl font-bold text-slate-900 tracking-tight">Srijan<span class="text-blue-600">OS</span></span>
+                <i class="fa-solid fa-seedling text-blue-600 text-2xl sm:text-3xl"></i>
+                <span class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Srijan<span class="text-blue-600">OS</span></span>
             </div>
             <div class="flex space-x-2 items-center">
                 <!-- My Profile Dropdown -->
                 <div class="relative">
-                    <button id="profileBtn" class="px-5 py-2 text-sm font-semibold rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center">
-                        <i class="fa-solid fa-circle-user mr-2 text-slate-400"></i><span id="profileBtnText">My Profile</span>
+                    <button id="profileBtn" class="px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center transition">
+                        <i class="fa-solid fa-circle-user mr-1.5 sm:mr-2 text-slate-400"></i><span id="profileBtnText">Profile</span>
                     </button>
                     <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50">
                         <div class="px-4 py-3 border-b border-slate-100 mb-1">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <!-- Upgrade Button -->
-                <button onclick="document.getElementById('proModal').classList.remove('hidden')" class="px-5 py-2 text-sm font-semibold rounded-full bg-slate-900 text-white hover:bg-slate-800 shadow-md">Upgrade to Pro</button>
+                <button onclick="document.getElementById('proModal').classList.remove('hidden')" class="px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-full bg-slate-900 text-white hover:bg-slate-800 shadow-md transition">Upgrade</button>
             </div>
         </div>
         
@@ -77,7 +77,7 @@
                         <option value="Retail & E-Commerce">Retail</option>
                         <option value="Creative & Media">Media</option>
                     </select>
-                    <input type="number" id="budgetInput" placeholder="Budget (₹)" value="50000" class="px-6 py-3 rounded-full border border-slate-300 w-40 outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" id="budgetInput" placeholder="Budget (â‚¹)" value="50000" class="px-6 py-3 rounded-full border border-slate-300 w-40 outline-none focus:ring-2 focus:ring-blue-500">
                     <button onclick="fetchIdeas()" class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-700 shadow-md">
                         Generate
                     </button>
@@ -96,7 +96,7 @@
                 <button onclick="resetTracker()" class="text-sm font-bold text-slate-400 hover:text-red-500 transition"><i class="fa-solid fa-rotate-right mr-1"></i>Reset Board</button>
             </div>
             
-            <div class="grid md:grid-cols-3 gap-6 h-[600px]">
+            <div class="grid md:grid-cols-3 gap-6 md:h-[600px]">
                 <!-- Column 1: To Do -->
                 <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex flex-col">
                     <h3 class="font-bold text-slate-700 mb-4 flex items-center"><div class="w-2 h-2 rounded-full bg-slate-400 mr-2"></div>To Do</h3>
@@ -123,7 +123,7 @@
 
         <!-- 3. GOVT SCHEMES TAB -->
         <div id="content-schemes" class="tab-content">
-            <div class="bg-slate-900 text-white p-10 rounded-3xl mb-8 flex flex-col md:flex-row gap-8 items-center">
+            <div class="bg-slate-900 text-white p-6 sm:p-10 rounded-3xl mb-8 flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
                 <div class="flex-1">
                     <h2 class="text-3xl font-bold mb-4">Government Scheme Matcher</h2>
                     <p class="text-slate-400">Don't use your own savings. Find exactly which Indian government loans and grants you legally qualify for.</p>
@@ -141,13 +141,13 @@
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="bg-white p-6 border border-slate-200 rounded-2xl hover:shadow-md">
                     <h3 class="font-bold text-xl mb-2">Pradhan Mantri Mudra Yojana (PMMY)</h3>
-                    <p class="text-slate-600 text-sm mb-4">Collateral-free loans up to ₹10 Lakhs for small/micro enterprises in manufacturing, trading, or services.</p>
+                    <p class="text-slate-600 text-sm mb-4">Collateral-free loans up to â‚¹10 Lakhs for small/micro enterprises in manufacturing, trading, or services.</p>
                     <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">High Match</span>
                     <a href="https://www.mudra.org.in/" target="_blank" class="mt-4 inline-block text-blue-600 font-bold text-sm hover:underline">Read Application Guide &rarr;</a>
                 </div>
                 <div class="bg-white p-6 border border-slate-200 rounded-2xl hover:shadow-md">
                     <h3 class="font-bold text-xl mb-2">Stand-Up India Scheme</h3>
-                    <p class="text-slate-600 text-sm mb-4">Bank loans between ₹10 Lakh and ₹1 Crore for setting up a greenfield enterprise. (Best for Women/SC/ST).</p>
+                    <p class="text-slate-600 text-sm mb-4">Bank loans between â‚¹10 Lakh and â‚¹1 Crore for setting up a greenfield enterprise. (Best for Women/SC/ST).</p>
                     <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">Medium Match</span>
                     <a href="https://www.standupmitra.in/" target="_blank" class="mt-4 inline-block text-blue-600 font-bold text-sm hover:underline">Read Application Guide &rarr;</a>
                 </div>
@@ -224,11 +224,11 @@
                 <div onclick="document.getElementById('proModal').classList.remove('hidden')" class="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:shadow-xl transition cursor-pointer group">
                     <div class="h-48 bg-slate-200 relative overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">₹4.2 Lakh / mo</div>
+                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">â‚¹4.2 Lakh / mo</div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2 block">Food & Beverage</span>
-                        <h3 class="font-bold text-xl mb-2 text-slate-800 group-hover:text-blue-600 transition">How I quit Infosys to start a ₹4L/mo Cloud Kitchen</h3>
+                        <h3 class="font-bold text-xl mb-2 text-slate-800 group-hover:text-blue-600 transition">How I quit Infosys to start a â‚¹4L/mo Cloud Kitchen</h3>
                         <p class="text-sm text-slate-600 mb-4">Rajesh transitioned from IT testing to running a highly profitable cloud kitchen network in Pune using Swiggy analytics.</p>
                         <div class="flex items-center space-x-3 mt-4 border-t border-slate-100 pt-4">
                             <img src="https://i.pravatar.cc/150?img=11" class="w-8 h-8 rounded-full">
@@ -241,7 +241,7 @@
                 <div onclick="document.getElementById('proModal').classList.remove('hidden')" class="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:shadow-xl transition cursor-pointer group">
                     <div class="h-48 bg-slate-200 relative overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">₹12 Lakh / mo</div>
+                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">â‚¹12 Lakh / mo</div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2 block">Tech & Software</span>
@@ -258,7 +258,7 @@
                 <div onclick="document.getElementById('proModal').classList.remove('hidden')" class="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:shadow-xl transition cursor-pointer group">
                     <div class="h-48 bg-slate-200 relative overflow-hidden">
                         <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">₹1.5 Lakh / mo</div>
+                        <div class="absolute top-4 right-4 bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">â‚¹1.5 Lakh / mo</div>
                     </div>
                     <div class="p-6">
                         <span class="text-xs font-bold uppercase tracking-wider text-blue-600 mb-2 block">Professional Services</span>
@@ -313,18 +313,18 @@
 
         <!-- 6. CALCULATOR TAB -->
         <div id="content-calculator" class="tab-content">
-            <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-10">
+            <div class="bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-6 sm:gap-10">
                 <div class="flex-1 space-y-8">
                     <h2 class="text-3xl font-bold">The "Don't Quit Yet" Calculator</h2>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-2">Current Job Salary (₹)</label>
+                        <label class="block font-bold text-slate-700 mb-2">Current Job Salary (â‚¹)</label>
                         <input type="range" id="salaryRange" min="20000" max="300000" step="5000" value="80000" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer" oninput="updateCalculator()">
-                        <div class="text-right font-bold text-blue-600 mt-2 text-xl" id="salaryDisplay">₹80,000</div>
+                        <div class="text-right font-bold text-blue-600 mt-2 text-xl" id="salaryDisplay">â‚¹80,000</div>
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-2">Business Monthly Profit (₹)</label>
+                        <label class="block font-bold text-slate-700 mb-2">Business Monthly Profit (â‚¹)</label>
                         <input type="range" id="businessRange" min="0" max="200000" step="2000" value="20000" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer" oninput="updateCalculator()">
-                        <div class="text-right font-bold text-emerald-600 mt-2 text-xl" id="businessDisplay">₹20,000</div>
+                        <div class="text-right font-bold text-emerald-600 mt-2 text-xl" id="businessDisplay">â‚¹20,000</div>
                     </div>
                 </div>
                 <div class="flex-1 bg-slate-900 rounded-2xl p-8 text-white flex flex-col justify-center items-center text-center">
@@ -340,7 +340,7 @@
     <!-- AI CHATBOT WIDGET -->
     <div id="chatWidget" class="fixed bottom-6 right-6 z-50">
         <!-- Chat Window -->
-        <div id="chatWindow" class="hidden bg-white w-80 h-96 rounded-2xl shadow-2xl border border-slate-200 flex flex-col mb-4 overflow-hidden transition-all">
+        <div id="chatWindow" class="hidden bg-white w-[calc(100vw-2.5rem)] sm:w-80 h-96 rounded-2xl shadow-2xl border border-slate-200 flex flex-col mb-4 overflow-hidden transition-all">
             <div class="bg-blue-600 text-white p-4 font-bold flex justify-between items-center">
                 <span><i class="fa-solid fa-robot mr-2"></i>Srijan AI Mentor</span>
                 <button onclick="toggleChat()"><i class="fa-solid fa-times"></i></button>
@@ -633,42 +633,42 @@
         const schemeDatabase = [
             {
                 name: "Pradhan Mantri Mudra Yojana (PMMY)",
-                desc: "Collateral-free loans up to ₹10 Lakhs for small/micro enterprises. Ideal for quick capital.",
+                desc: "Collateral-free loans up to â‚¹10 Lakhs for small/micro enterprises. Ideal for quick capital.",
                 link: "https://www.mudra.org.in/",
                 match: (g, c, s) => true, 
                 label: "Universal Match", color: "emerald"
             },
             {
                 name: "Stand-Up India Scheme",
-                desc: "Bank loans between ₹10 Lakh and ₹1 Crore for setting up a greenfield enterprise.",
+                desc: "Bank loans between â‚¹10 Lakh and â‚¹1 Crore for setting up a greenfield enterprise.",
                 link: "https://www.standupmitra.in/",
                 match: (g, c, s) => g === "Female" || c === "SC/ST",
                 label: "High Match", color: "emerald"
             },
             {
                 name: "Ambedkar Social Innovation & Incubation Mission (ASIIM)",
-                desc: "Up to ₹30 Lakhs funding over 3 years for SC youth establishing tech startups.",
+                desc: "Up to â‚¹30 Lakhs funding over 3 years for SC youth establishing tech startups.",
                 link: "https://vcfsc.in/",
                 match: (g, c, s) => c === "SC/ST",
                 label: "High Match", color: "emerald"
             },
             {
                 name: "Prime Minister's Employment Generation Programme (PMEGP)",
-                desc: "Credit-linked subsidy up to 35%. Max ₹50 Lakhs for Manufacturing, ₹20 Lakhs for Services.",
+                desc: "Credit-linked subsidy up to 35%. Max â‚¹50 Lakhs for Manufacturing, â‚¹20 Lakhs for Services.",
                 link: "https://www.kviconline.gov.in/pmegpeportal/",
                 match: (g, c, s) => s === "Manufacturing" || s === "Services",
                 label: "Medium Match", color: "blue"
             },
             {
                 name: "Credit Guarantee Fund Trust (CGTMSE)",
-                desc: "Collateral-free credit up to ₹5 Crore for Micro and Small Enterprises via banks.",
+                desc: "Collateral-free credit up to â‚¹5 Crore for Micro and Small Enterprises via banks.",
                 link: "https://www.cgtmse.in/",
                 match: (g, c, s) => s === "Manufacturing" || s === "Services",
                 label: "Medium Match", color: "blue"
             },
             {
                 name: "Startup India Seed Fund Scheme (SISFS)",
-                desc: "Financial assistance up to ₹50 Lakhs for proof of concept, prototype development, and market-entry.",
+                desc: "Financial assistance up to â‚¹50 Lakhs for proof of concept, prototype development, and market-entry.",
                 link: "https://seedfund.startupindia.gov.in/",
                 match: (g, c, s) => true, 
                 label: "Universal Match", color: "blue"
@@ -703,7 +703,7 @@
             },
             {
                 name: "Coir Udyami Yojana (CUY)",
-                desc: "Credit linked subsidy scheme for setting up coir units with project cost up to ₹10 lakhs.",
+                desc: "Credit linked subsidy scheme for setting up coir units with project cost up to â‚¹10 lakhs.",
                 link: "https://coirboard.gov.in/",
                 match: (g, c, s) => s === "Manufacturing",
                 label: "Niche Match", color: "purple"
@@ -750,8 +750,8 @@
             const salary = parseInt(document.getElementById('salaryRange').value);
             const biz = parseInt(document.getElementById('businessRange').value);
             
-            document.getElementById('salaryDisplay').innerText = "₹" + salary.toLocaleString('en-IN');
-            document.getElementById('businessDisplay').innerText = "₹" + biz.toLocaleString('en-IN');
+            document.getElementById('salaryDisplay').innerText = "â‚¹" + salary.toLocaleString('en-IN');
+            document.getElementById('businessDisplay').innerText = "â‚¹" + biz.toLocaleString('en-IN');
             
             let score = 0;
             let message = "";
@@ -904,7 +904,7 @@
                             <div>
                                 <div class="flex justify-between items-start mb-2">
                                     <span class="text-xs font-bold uppercase tracking-wider text-blue-600 block">${idea.niche}</span>
-                                    <span class="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">₹${idea.min_budget} req.</span>
+                                    <span class="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">â‚¹${idea.min_budget} req.</span>
                                 </div>
                                 <h3 class="text-xl font-bold mb-2 text-slate-800">${idea.title}</h3>
                                 <p class="text-slate-600 text-sm mb-6">${idea.description}</p>
@@ -961,7 +961,7 @@
         const salD = document.getElementById('salaryDisplay'), bizD = document.getElementById('businessDisplay');
         function calc() {
             const s = parseInt(salR.value), b = parseInt(bizR.value);
-            salD.innerText = '₹' + s.toLocaleString('en-IN'); bizD.innerText = '₹' + b.toLocaleString('en-IN');
+            salD.innerText = 'â‚¹' + s.toLocaleString('en-IN'); bizD.innerText = 'â‚¹' + b.toLocaleString('en-IN');
             let p = s > 0 ? Math.round((b/s)*100) : 0;
             document.getElementById('readinessScore').innerText = p + '%';
             let msg = document.getElementById('readinessMessage');
@@ -1118,7 +1118,7 @@
             <p class="text-slate-600 mb-6">You've unlocked the ultimate entrepreneurial OS. It's time to execute.</p>
             
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
-                <div class="text-3xl font-bold mb-4">₹499<span class="text-lg text-slate-500 font-normal"> / month</span></div>
+                <div class="text-3xl font-bold mb-4">â‚¹499<span class="text-lg text-slate-500 font-normal"> / month</span></div>
                 <ul class="space-y-3 text-sm text-slate-700 font-medium">
                     <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Access to all 300+ Deep Strategies</li>
                     <li><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Unlimited AI Co-Founder Chat</li>
@@ -1143,7 +1143,7 @@
                 </div>
                 <div>
                     <h3 class="font-bold text-lg">SrijanOS Subscription</h3>
-                    <p class="text-sm opacity-80">PRO Plan - ₹499.00</p>
+                    <p class="text-sm opacity-80">PRO Plan - â‚¹499.00</p>
                 </div>
             </div>
             
@@ -1173,7 +1173,7 @@
                         <input type="text" id="cardCvv" placeholder="CVV" class="w-1/2 border border-slate-300 rounded-lg p-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
                     </div>
                     <button onclick="mockPaymentProcess('card')" id="rzpPayBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 shadow-md transition flex justify-center items-center">
-                        Pay ₹499.00
+                        Pay â‚¹499.00
                     </button>
                 </div>
             </div>
@@ -1305,11 +1305,11 @@
     <!-- PLAN MODAL -->
     <div id="planModal" class="hidden fixed inset-0 bg-slate-900/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl relative flex flex-col h-[80vh] overflow-hidden">
-            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                <h3 class="font-black text-2xl text-slate-800"><i class="fa-solid fa-file-invoice text-blue-600 mr-2"></i>Generated AI Business Plan</h3>
-                <div class="flex items-center gap-4">
-                    <button id="savePlanBtn" onclick="saveCurrentPlan()" class="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-800 transition"><i class="fa-solid fa-bookmark mr-2"></i>Save to Profile</button>
-                    <button onclick="document.getElementById('planModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-times"></i></button>
+            <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50">
+                <h3 class="font-black text-lg sm:text-2xl text-slate-800 flex items-center"><i class="fa-solid fa-file-invoice text-blue-600 mr-2"></i>Generated AI Plan</h3>
+                <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                    <button id="savePlanBtn" onclick="saveCurrentPlan()" class="bg-slate-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center"><i class="fa-solid fa-bookmark mr-1.5 sm:mr-2"></i>Save to Profile</button>
+                    <button onclick="document.getElementById('planModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-xl sm:text-2xl p-1"><i class="fa-solid fa-times"></i></button>
                 </div>
             </div>
             <div class="p-8 overflow-y-auto flex-1 prose prose-slate max-w-none prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-a:text-blue-600 prose-li:marker:text-blue-500" id="planContent">
