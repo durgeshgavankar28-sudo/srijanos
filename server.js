@@ -119,6 +119,10 @@ app.get('/api/admin/stats', async (req, res) => {
         }
         stats.totalSavedPlans = planCount;
         stats.recentSignups = (db.users || []).slice(-10).reverse().map(u => ({email: u.email, name: u.name}));
+        stats.recentFeedback = (db.feedback || []).slice(-15).reverse();
+    }
+    if (!stats.recentFeedback) {
+        stats.recentFeedback = [];
     }
     
     res.json(stats);
