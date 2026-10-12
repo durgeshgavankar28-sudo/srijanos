@@ -30,6 +30,15 @@ const User = mongoose.model('User', UserSchema);
 const WaitlistSchema = new mongoose.Schema({ email: String, timestamp: Date });
 const Waitlist = mongoose.model('Waitlist', WaitlistSchema);
 
+const FeedbackSchema = new mongoose.Schema({
+    email: String,
+    feedback: String,
+    category: String,
+    date: { type: Date, default: Date.now }
+});
+const Feedback = mongoose.model('Feedback', FeedbackSchema);
+
+
 
 const app = express();
 const PORT = 3000;
@@ -95,6 +104,8 @@ app.get('/api/admin/stats', async (req, res) => {
             stats.registeredUsers = userCount;
             stats.totalSavedPlans = planCount;
             stats.recentSignups = recentUsers;
+            const recentFeedback = await Feedback.find().sort({ _id: -1 }).limit(15);
+            stats.recentFeedback = recentFeedback;
         } catch(err) {
             console.error("Error fetching MongoDB stats:", err);
         }
@@ -111,6 +122,38 @@ app.get('/api/admin/stats', async (req, res) => {
     }
     
     res.json(stats);
+});
+
+
+// Submit User Feedback / Feature Request
+app.post('/api/feedback', async (req, res) => {
+    const { email, feedback, category } = req.body;
+    if (!feedback || feedback.trim().length === 0) {
+        return res.status(400).json({ error: "Feedback cannot be empty" });
+    }
+    
+    const item = {
+        email: email || "Anonymous Founder",
+        feedback: feedback.trim(),
+        category: category || "Feature Request",
+        date: new Date()
+    };
+    
+    if (process.env.MONGODB_URI) {
+        try {
+            await Feedback.create(item);
+            return res.json({ success: true, message: "Thank you! Your feedback was saved to our database." });
+        } catch(err) {
+            console.error("Feedback DB Error:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
+    } else {
+        const db = getDB();
+        db.feedback = db.feedback || [];
+        db.feedback.push(item);
+        saveDB(db);
+        return res.json({ success: true, message: "Feedback saved!" });
+    }
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
