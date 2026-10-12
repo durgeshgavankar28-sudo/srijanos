@@ -84,6 +84,29 @@
                 </div>
             </div>
         </div>
+        <!-- Founder Inbox: User Feedback & Feature Requests -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden mt-10">
+            <div class="bg-slate-850 p-4 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-inbox mr-2 text-amber-400"></i> Founder Inbox: Feature Requests & User Feedback</h3>
+                <span class="text-xs text-slate-400 font-mono" id="feedbackCount">0 submissions</span>
+            </div>
+            <div class="p-0 overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-slate-400 text-xs uppercase tracking-wider">
+                            <th class="p-4 border-b border-slate-700">Category</th>
+                            <th class="p-4 border-b border-slate-700">Feedback / Request</th>
+                            <th class="p-4 border-b border-slate-700">Submitted By</th>
+                            <th class="p-4 border-b border-slate-700">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedbackTable" class="text-sm text-slate-300">
+                        <!-- JS Injected -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -127,6 +150,30 @@
                     `).join('');
                 } else {
                     usersTable.innerHTML = '<tr><td class="p-8 text-center text-slate-500 italic">No users yet.</td></tr>';
+                }
+
+                
+                // Render Founder Feedback Inbox
+                const feedbackTable = document.getElementById('feedbackTable');
+                if (data.recentFeedback && data.recentFeedback.length > 0) {
+                    document.getElementById('feedbackCount').innerText = data.recentFeedback.length + ' submissions';
+                    feedbackTable.innerHTML = data.recentFeedback.map(item => {
+                        const d = item.date ? new Date(item.date).toLocaleDateString('en-IN') : 'Recent';
+                        let badgeColor = 'bg-blue-900/60 text-blue-300 border-blue-700';
+                        if (item.category === 'Bug Report') badgeColor = 'bg-red-900/60 text-red-300 border-red-700';
+                        if (item.category === 'New Idea/Grant') badgeColor = 'bg-emerald-900/60 text-emerald-300 border-emerald-700';
+                        return `
+                            <tr class="hover:bg-slate-700/60 transition border-b border-slate-700/50">
+                                <td class="p-4 whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeColor}">${item.category || 'Feedback'}</span></td>
+                                <td class="p-4 text-white font-medium max-w-md">${item.feedback}</td>
+                                <td class="p-4 text-slate-400 text-xs whitespace-nowrap">${item.email || 'Anonymous'}</td>
+                                <td class="p-4 text-slate-500 text-xs whitespace-nowrap">${d}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    document.getElementById('feedbackCount').innerText = '0 submissions';
+                    feedbackTable.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-500 italic">No feedback submissions yet. Awaiting visitor ideas!</td></tr>';
                 }
 
                 document.getElementById('lastUpdated').innerText = 'Last updated: ' + new Date().toLocaleTimeString();
