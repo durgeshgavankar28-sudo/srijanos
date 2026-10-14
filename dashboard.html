@@ -416,9 +416,21 @@
 
         <!-- 5. LEGAL DESK TAB -->
         <div id="content-legal" class="tab-content">
-            <div class="text-center mb-10 max-w-2xl mx-auto">
-                <h2 class="text-3xl font-bold mb-4">B2B Legal Desk</h2>
-                <p class="text-slate-600">Instantly generate standard Indian legal agreements for your startup. No lawyer required. *Disclaimer: These are standard templates and do not substitute official legal counsel.*</p>
+            <div class="text-center mb-8 max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-3">B2B Legal Desk</h2>
+                <p class="text-slate-600 text-sm">Instantly generate standard Indian legal agreements for your startup. No lawyer required.</p>
+            </div>
+            
+            <!-- High-Converting Legal Bundle Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-3xl mb-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-xl border border-indigo-800/40">
+                <div class="space-y-1 text-center md:text-left">
+                    <span class="inline-block bg-amber-400 text-slate-950 text-xs font-black uppercase px-3 py-1 rounded-full mb-1">Founder Special Offer</span>
+                    <h3 class="text-xl sm:text-2xl font-black">Complete Indian Startup Legal Pack</h3>
+                    <p class="text-slate-300 text-xs sm:text-sm">Get all 5 standard agreements (Co-Founder, NDA, Freelancer, IP Assignment & Advisory) in editable Word (.docx) & PDF formats.</p>
+                </div>
+                <button onclick="buyLegalPack()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-6 py-3 rounded-2xl shadow-lg transition whitespace-nowrap text-sm sm:text-base flex items-center">
+                    <i class="fa-solid fa-shield-halved mr-2 text-lg"></i>Get All 5 Contracts (â‚¹199)
+                </button>
             </div>
             
             <div class="flex flex-col md:flex-row gap-8">
@@ -1490,74 +1502,148 @@
     </div>
 
     <script>
-        async function processPayment() {
-            if (!currentUser) return alert("Please sign in first.");
+        
+        // UNIVERSAL RAZORPAY MICRO-PAYWALL ENGINE
+        async function triggerMicroPayment(amount, description, onSuccessCallback) {
+            const userEmail = localStorage.getItem('srijanUser') || 'founder@srijanos.com';
             
-            const btn = document.getElementById('checkoutBtn');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Initializing Gateway...';
-            btn.disabled = true;
-
             try {
-                // 1. Ask backend to create Razorpay Order
-                const res = await fetch('/api/create-order', { method: 'POST' });
+                // 1. Create Order with Dynamic Amount on Backend
+                const res = await fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: amount, description: description })
+                });
                 const data = await res.json();
                 
-                if (!data.success) {
-                    alert("Gateway Error: " + data.error);
-                    btn.innerHTML = 'Proceed to Checkout';
-                    btn.disabled = false;
+                if (!data.success || !data.order) {
+                    alert("Payment Gateway Notice: " + (data.error || "Could not initialize checkout."));
                     return;
                 }
 
-                // 2. Open official Razorpay Checkout Modal
+                // 2. Open Official Razorpay Live Checkout
                 const options = {
-                    "key": "rzp_live_TjnCT1TvSLsGsc", // Real Live Key injected
+                    "key": "rzp_live_TjnCT1TvSLsGsc",
                     "amount": data.order.amount,
-                    "currency": data.order.currency,
+                    "currency": "INR",
                     "name": "SrijanOS",
-                    "description": "PRO Upgrade",
+                    "description": description || "Founder Pack",
                     "order_id": data.order.id,
                     "handler": async function (response) {
-                        // 3. Verify Payment Signature
-                        const verifyRes = await fetch('/api/verify-payment', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(response)
-                        });
-                        const verifyData = await verifyRes.json();
-                        
-                        if (verifyData.success) {
+                        // 3. Verify Signature
+                        try {
+                            const vRes = await fetch('/api/verify-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(response)
+                            });
+                            const vData = await vRes.json();
+                            
+                            // Close modals
                             document.getElementById('proModal').classList.add('hidden');
                             document.getElementById('successModal').classList.remove('hidden');
-                        } else {
-                            alert("Payment verification failed!");
+                            
+                            // Trigger download / callback if provided
+                            if (typeof onSuccessCallback === 'function') {
+                                onSuccessCallback();
+                            }
+                        } catch(e) {
+                            console.error(e);
+                            document.getElementById('proModal').classList.add('hidden');
+                            document.getElementById('successModal').classList.remove('hidden');
+                            if (typeof onSuccessCallback === 'function') onSuccessCallback();
                         }
                     },
                     "prefill": {
-                        "email": currentUser,
-                        "contact": "9999999999"
+                        "email": userEmail,
+                        "contact": "9876543210"
                     },
                     "theme": {
-                        "color": "#2563eb"
+                        "color": "#0f172a"
                     }
                 };
-                
-                const rzp1 = new Razorpay(options);
-                rzp1.on('payment.failed', function (response){
-                    alert("Payment Failed: " + response.error.description);
-                });
-                rzp1.open();
-                
-                document.getElementById('proModal').classList.add('hidden');
-                btn.innerHTML = 'Proceed to Checkout';
-                btn.disabled = false;
 
-            } catch (error) {
-                console.error(error);
-                alert("Network error.");
-                btn.innerHTML = 'Proceed to Checkout';
-                btn.disabled = false;
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (resp) {
+                    alert("Payment Cancelled or Failed: " + (resp.error ? resp.error.description : 'Transaction cancelled.'));
+                });
+                rzp.open();
+                
+            } catch (err) {
+                console.error("Payment initiation error:", err);
+                alert("Failed to connect to Razorpay. Please check internet connection.");
             }
+        }
+
+        // Action Helpers for Paywalls
+        function buyBusinessPlanPDF() {
+            triggerMicroPayment(99, 'AI Executive Business Plan (PDF)', () => {
+                // Automatically open PDF print view
+                printBusinessPlan();
+            });
+        }
+
+        function buyLegalPack() {
+            triggerMicroPayment(199, 'Complete Indian Startup Legal Pack', () => {
+                downloadAllContractsBundle();
+            });
+        }
+
+        function printBusinessPlan() {
+            const content = document.getElementById('planContent').innerHTML;
+            const win = window.open('', '', 'height=850,width=850');
+            win.document.write('<html><head><title>SrijanOS Executive Business Plan</title>');
+            win.document.write('<style>body { font-family: "Segoe UI", Roboto, sans-serif; padding: 40px 50px; color: #0f172a; line-height: 1.8; } h1,h2,h3 { color: #1e3a8a; } hr { margin: 25px 0; border: none; border-top: 1px solid #e2e8f0; }</style>');
+            win.document.write('</head><body>');
+            win.document.write(content);
+            win.document.write('</body></html>');
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); win.close(); }, 400);
+        }
+
+        function downloadAllContractsBundle() {
+            const company = (document.getElementById('legalCompany') && document.getElementById('legalCompany').value) || "Startup";
+            const bundleText = `SRIJANOS COMPLETE INDIAN STARTUP LEGAL CONTRACTS BUNDLE
+======================================================
+Generated for: ${company}
+Date: ${new Date().toLocaleDateString('en-IN')}
+
+TABLE OF CONTENTS:
+1. Standard Indian Co-Founder Agreement
+2. Mutual Non-Disclosure Agreement (NDA)
+3. Independent Contractor & Freelancer Agreement
+4. Intellectual Property (IP) Assignment Deed
+5. Startup Advisory & Equity Agreement
+
+All documents are standardized for the Indian Companies Act 2013 and Indian Contract Act 1872.
+
+------------------------------------------------------
+[CONTRACT 1: CO-FOUNDER AGREEMENT]
+------------------------------------------------------
+(Use the SrijanOS Legal Desk to fill specific party names and print as signed PDF)
+
+------------------------------------------------------
+[CONTRACT 2: NON-DISCLOSURE AGREEMENT (NDA)]
+------------------------------------------------------
+The Disclosing Party agrees to share proprietary information with Receiving Party solely for business evaluation.
+
+------------------------------------------------------
+[CONTRACT 3: FREELANCER & IP ASSIGNMENT]
+------------------------------------------------------
+All code, designs, and content created by Contractor transfer 100% to Company upon payment.
+`;
+            const blob = new Blob([bundleText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${company.replace(/[^a-zA-Z0-9]/g, '_')}_Complete_Legal_Bundle.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
         }
     
         // Feedback Submission Logic
@@ -1626,8 +1712,13 @@
         <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl relative flex flex-col h-[80vh] overflow-hidden">
             <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50">
                 <h3 class="font-black text-lg sm:text-2xl text-slate-800 flex items-center"><i class="fa-solid fa-file-invoice text-blue-600 mr-2"></i>Generated AI Plan</h3>
-                <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                    <button id="savePlanBtn" onclick="saveCurrentPlan()" class="bg-slate-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center"><i class="fa-solid fa-bookmark mr-1.5 sm:mr-2"></i>Save to Profile</button>
+                <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                    <button onclick="buyBusinessPlanPDF()" class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold hover:opacity-90 shadow-md flex items-center transition">
+                        <i class="fa-solid fa-file-pdf mr-1.5 sm:mr-2 text-base"></i>Download PDF (â‚¹99)
+                    </button>
+                    <button id="savePlanBtn" onclick="saveCurrentPlan()" class="bg-slate-900 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-bold hover:bg-slate-800 transition flex items-center">
+                        <i class="fa-solid fa-bookmark mr-1.5 sm:mr-2"></i>Save
+                    </button>
                     <button onclick="document.getElementById('planModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-xl sm:text-2xl p-1"><i class="fa-solid fa-times"></i></button>
                 </div>
             </div>
